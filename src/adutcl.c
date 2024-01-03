@@ -11,20 +11,22 @@
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE    8     
 
-// Give the device handle global scope
-static struct libusb_device_handle *devh = NULL;
+
+
 
 int initialize() { return libusb_init(NULL); }
 
-int open_device(int vid, int pid) {
+libusb_device_handle * open_device(int vid, int pid) {
   int result;
+
+  struct libusb_device_handle * device_handle = NULL; // Our ADU's USB device handle
   
   // Set debugging output to max level
   libusb_set_option( NULL, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_WARNING );
 
   // Open our ADU device that matches our vendor id and product id
-  devh = libusb_open_device_with_vid_pid( NULL, vid, pid );
-  if ( !devh ) {
+  device_handle = libusb_open_device_with_vid_pid( NULL, vid, pid );
+  if ( !device_handle ) {
     printf( "Error finding USB device\n" );
     libusb_exit( NULL );
     exit( -2 );
@@ -34,23 +36,23 @@ int open_device(int vid, int pid) {
   // If a kernel driver currently has an interface claimed, it will be automatically be detached
   // when we claim that interface. When the interface is restored, the kernel driver is allowed
   // to be re-attached. This can alternatively be manually done via libusb_detach_kernel_driver().
-  libusb_set_auto_detach_kernel_driver( devh, 1 );
+  libusb_set_auto_detach_kernel_driver( device_handle, 1 );
 
   // Claim interface 0 on the device
-  result = libusb_claim_interface( devh, 0 );
+  result = libusb_claim_interface( device_handle, 0 );
   if ( result < 0 ) {
     printf( "Error claiming interface: %s\n", libusb_error_name( result ) );
-    if ( devh ) {
-      libusb_close( devh );
+    if ( device_handle ) {
+      libusb_close( device_handle );
     }
     libusb_exit( NULL );
     exit( -3 );
   }
-  return 0;
+  return device_handle;
 }
 
 // Write a command to an ADU device with a specified timeout
-int write_to_adu( const char * _cmd, int _timeout ) {
+int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout ) {
   // Get the length of the command string we are sending
   const int command_len = strlen( _cmd ); 
 
@@ -81,7 +83,7 @@ int write_to_adu( const char * _cmd, int _timeout ) {
 
   // Attempt to send the command to the OUT endpoint (0x01) with the
   // use specified millisecond timeout
-  int result = libusb_interrupt_transfer( devh, 0x01, buffer, TRANSFER_SIZE, &bytes_sent, _timeout );
+  int result = libusb_interrupt_transfer( device_handle, 0x01, buffer, TRANSFER_SIZE, &bytes_sent, _timeout );
   printf( "Write '%s' result: %i, Bytes sent: %u\n", _cmd, result, bytes_sent );
 
   if ( result < 0 ) {
