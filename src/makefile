@@ -7,6 +7,15 @@ rootname = adutcl
 
 ###################### Done with configuration #######################
 
+# SWIG flags
+#
+# Make a tcl interface
+SFLAGS = -tcl
+
+# Provide procedures in a namespace
+SFLAGS += -prefix adu -namespace
+
+# C compiler
 CC = gcc
 
 # -fpic -- Make position-independent code for shared libraries
@@ -79,7 +88,7 @@ $(rootname).so: $(OBJ)
 
 # Make a wrapper from an interface description
 %_wrap.c: %.i
-	swig -tcl -o $@ $<
+	swig $(SFLAGS) -o $@ $<
 
 # Display compiler version information.
 gccversion :
