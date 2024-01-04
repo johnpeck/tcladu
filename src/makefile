@@ -5,6 +5,8 @@ tcl_header_directory = /home/johnpeck/projects/eventual/software/tcl/tcl8.6.13/g
 # Root of the source filename (no extension)
 rootname = adutcl
 
+version = 1.0
+
 ###################### Done with configuration #######################
 
 # SWIG flags
@@ -40,6 +42,11 @@ LFLAGS +=  -Xlinker -rpath /usr/lib/x86_64-linux-gnu
 OBJ = $(rootname).o
 OBJ += $(rootname)_wrap.o
 
+package_dir = ../package/$(rootname)
+package_files = $(rootname).so
+package_files += pkgIndex.tcl
+package_file_paths = $(addprefix $(package_dir)/, $(package_files))
+
 usage_text_width = 20
 indent_text_width = 7
 target_text_width = 15
@@ -72,7 +79,11 @@ help:
           "Remove generated files"
 
 .PHONY: all
-all: shared
+all: shared pkgIndex.tcl $(package_file_paths)
+
+$(package_dir)/%: %
+	mkdir -p $(package_dir)
+	cp $< $@
 
 .PHONY: wrapper
 wrapper: $(rootname)_wrap.c
@@ -88,13 +99,18 @@ $(rootname).so: $(OBJ)
 
 # Make a wrapper from an interface description
 %_wrap.c: %.i
-	swig $(SFLAGS) -o $@ $<
+	swig $(SFLAGS) -pkgversion $(version) -o $@ $<
 
 # Display compiler version information.
 gccversion :
 	@$(CC) --version
 
+pkgIndex.tcl: $(rootname).so
+	tclsh package.tcl
+
 clean:
 	rm -f *_wrap.c
 	rm -f *.o
 	rm -f *.so
+	rm -f pkgIndex.tcl
+	rm -rf $(package_dir)
