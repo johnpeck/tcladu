@@ -51,6 +51,9 @@ libusb_device_handle * open_device(int vid, int pid) {
   return device_handle;
 }
 
+
+
+
 // Write a command to an ADU device with a specified timeout
 int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout ) {
   // Get the length of the command string we are sending
