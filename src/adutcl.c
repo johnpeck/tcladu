@@ -88,7 +88,7 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
   // from the read buffer, starting at index 1, to our _read_str
   // buffer
   memcpy( _read_str, &buffer[1], 7 );
-  buffer[7] = '\0'; // null terminate the string
+  _read_str[7] = '\0'; // null terminate the string
   printf( "Read value as string: %s\n", _read_str );
 
   return result; // returns 0 on success, a negative number specifying the libusb error otherwise
