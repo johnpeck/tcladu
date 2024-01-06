@@ -1,6 +1,6 @@
 
 # Directory containing tcl.h
-tcl_header_directory = /home/johnpeck/projects/eventual/software/tcl/tcl8.6.13/generic
+tcl_header_directory = /usr/include/tcl8.6
 
 # Root of the source filename (no extension)
 rootname = adutcl

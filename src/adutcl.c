@@ -5,7 +5,8 @@
 #include <errno.h>
 #include <string.h>
 
-// libusb library must be available. It can be installed on Debian/Ubuntu using apt-get install libusb-1.0-0-dev
+// libusb library must be available. It can be installed on
+// Debian/Ubuntu using apt-get install libusb-1.0-0-dev
 #include <libusb-1.0/libusb.h>
 
 // ADU100 is a low-speed device, so we must use 8 byte transfers
