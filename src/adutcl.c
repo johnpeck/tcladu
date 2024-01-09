@@ -10,19 +10,31 @@
 #include <libusb-1.0/libusb.h>
 
 // ADU100 is a low-speed device, so we must use 8 byte transfers
-#define TRANSFER_SIZE    8
+#define TRANSFER_SIZE 8
 
-int initialize() { return libusb_init(NULL); }
 
+int initialize() {
+  // We need to initialize libusb before we can use it.  
+  return libusb_init(NULL);
+}
+
+// Per the SWIG documentation:
+//
+// All pointers are treated as opaque objects by SWIG. Thus, a pointer
+// may be returned by a function and passed around to other C
+// functions as needed.
+//
+// So it's not strange that the device handle isn't declared globally.
 libusb_device_handle * open_device(int vid, int pid) {
   int result;
 
-  struct libusb_device_handle * device_handle = NULL; // Our ADU's USB device handle
+  // Our ADU's USB device handle
+  struct libusb_device_handle * device_handle = NULL;
 
   // Set debugging output to max level
   libusb_set_option( NULL, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_WARNING );
 
-  // Open our ADU device that matches our vendor id and product id
+  // Open the ADU device that matches our vendor id and product id
   device_handle = libusb_open_device_with_vid_pid( NULL, vid, pid );
   if ( !device_handle ) {
     printf( "Error finding USB device\n" );
@@ -49,10 +61,6 @@ libusb_device_handle * open_device(int vid, int pid) {
   return device_handle;
 }
 
-// This buffer will contain the return for reads. Its size is set to
-// the transfer size for low or full speed USB devices (ADU model
-// specific - see defines at top of file)
-// unsigned char buffer[ TRANSFER_SIZE ];
 
 // Read a command from an ADU device with a specified timeout
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout ) {
