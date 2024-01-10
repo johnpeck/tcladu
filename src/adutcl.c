@@ -12,9 +12,8 @@
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE 8
 
-
 int initialize() {
-  // We need to initialize libusb before we can use it.  
+  // We need to initialize libusb before we can use it.
   return libusb_init(NULL);
 }
 
@@ -61,13 +60,11 @@ libusb_device_handle * open_device(int vid, int pid) {
   return device_handle;
 }
 
-
 // Read a command from an ADU device with a specified timeout
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout ) {
   if ( _read_str == NULL || _read_str_len < 8 ) {
     return -2;
   }
-  
 
   int bytes_read = 0;
 
@@ -83,13 +80,10 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
   int result = libusb_interrupt_transfer( _device_handle, 0x81, buffer, TRANSFER_SIZE, &bytes_read, _timeout );
   printf( "Read result: %i, Bytes read: %u\n", result, bytes_read );
 
-
   if ( result < 0 ) {
     printf( "Error reading interrupt transfer: %s\n", libusb_error_name( result ) );
     return result;
   }
-
-  
 
   // The buffer should now hold the data read from the ADU
   // device. The first byte will contain 0x01, the remaining bytes
@@ -98,7 +92,7 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
   // buffer
   memcpy( _read_str, &buffer[1], 7 );
   _read_str[7] = '\0'; // null terminate the string
-  printf( "Read value as string: %s\n", _read_str );
+  // printf( "Read value as string: %s\n", _read_str );
 
   return result; // returns 0 on success, a negative number specifying the libusb error otherwise
 }
