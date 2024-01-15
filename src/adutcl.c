@@ -138,3 +138,42 @@ int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _
 
   return result; // Returns 0 on success, a negative number specifying the libusb error otherwise
 }
+
+int device_list(char *list) {
+  libusb_device **devs;
+  int count;
+  int result;
+  char new_string[100];
+  unsigned char serial_string[100];
+  count = libusb_get_device_list(NULL, &devs);
+  struct libusb_device_handle * devh = NULL;
+
+  // printf( "Found %u devices\n", count);
+  struct libusb_device_descriptor desc;
+  if (count < 0) {
+    libusb_exit(NULL);
+    return -1;
+  }
+  for (int i = 0; i < count; i++) {
+    result = libusb_get_device_descriptor(devs[i], &desc);
+    if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
+      result = libusb_open(devs[i], &devh);
+      result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
+      // serial_string[50] = '\0';
+      // printf("Serial number %s\n", serial_string);
+
+      // We found an ADU100.  Add it to the list.
+      sprintf(new_string, "bus %d, device %d, serial %s ",
+	      libusb_get_bus_number(devs[i]),
+	      libusb_get_device_address(devs[i]),
+	      serial_string);
+      strcat(list, new_string);
+    }
+    // printf("%04x:%04x (bus %d, device %d)\n",
+    // 	   desc.idVendor, desc.idProduct,
+    // 	   libusb_get_bus_number(devs[i]), libusb_get_device_address(devs[i]));
+
+  }
+  libusb_close(devh);
+  return 0;
+}

@@ -16,6 +16,7 @@
 
   // See the comment for cstring_bounded_output for why we omit _read_str when we call this.
   int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
+  int device_list(char * _read_str);
 %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here
@@ -39,3 +40,4 @@ libusb_device_handle * open_device(int vid, int pid);
 int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
 
+int device_list(char * _read_str);
