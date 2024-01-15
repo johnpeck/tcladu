@@ -30,7 +30,51 @@ try {
     exit 1
 }
     
+proc colorputs {newline text color} {
 
+    set colorlist [list black red green yellow blue magenta cyan white]
+    set index 30
+    foreach fgcolor $colorlist {
+	set ansi(fg,$fgcolor) "\033\[1;${index}m"
+	incr index
+    }
+    set ansi(reset) "\033\[0m"
+    switch -nocase $color {
+	"red" {
+	    puts -nonewline "$ansi(fg,red)"
+	}
+	"green" {
+	    puts -nonewline "$ansi(fg,green)"
+	}
+	"yellow" {
+	    puts -nonewline "$ansi(fg,yellow)"
+	}
+	"blue" {
+	    puts -nonewline "$ansi(fg,blue)"
+	}
+	"magenta" {
+	    puts -nonewline "$ansi(fg,magenta)"
+	}
+	"cyan" {
+	    puts -nonewline "$ansi(fg,cyan)"
+	}
+	"white" {
+	    puts -nonewline "$ansi(fg,white)"
+	}
+	default {
+	    puts "No matching color"
+	}
+    }
+    switch -exact $newline {
+	"-nonewline" {
+	    puts -nonewline "$text$ansi(reset)"
+	}
+	"-newline" {
+	    puts "$text$ansi(reset)"
+	}
+    }
+    
+}
 
 proc iterint {start points} {
     # Return a list of increasing integers starting with start with
@@ -46,12 +90,18 @@ proc iterint {start points} {
 
 proc fail_message { message } {
     # Print a fail message
-    puts "\[fail\] $message"
+    puts -nonewline "\["
+    colorputs -nonewline "fail" red
+    puts -nonewline "\] "
+    puts $message
 }
 
 proc pass_message { message } {
     # Print a pass message
-    puts "\[pass\] $message"
+    puts -nonewline "\["
+    colorputs -nonewline "pass" green
+    puts -nonewline "\] "
+    puts $message
 }
 
 proc indented_message { message } {

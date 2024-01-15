@@ -75,6 +75,9 @@ help:
           "make" "all" \
           "Make everything"
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
+          "make" "test" \
+          "Test package"
+	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
           "make" "clean" \
           "Remove generated files"
 
@@ -100,6 +103,10 @@ $(rootname).so: $(OBJ)
 # Make a wrapper from an interface description
 %_wrap.c: %.i
 	swig $(SFLAGS) -pkgversion $(version) -o $@ $<
+
+.PHONY: test
+test:
+	tclsh ../test/test.tcl -v $(version)
 
 # Display compiler version information.
 gccversion :
