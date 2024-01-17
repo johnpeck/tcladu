@@ -12,6 +12,23 @@
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE 8
 
+
+typedef struct adu100 {
+  // Serial number
+  unsigned char serial_string[100];
+
+  // Device from device list
+  libusb_device *dev;
+
+  // Device handle
+  libusb_device_handle *devh;
+} adu100_t;
+
+adu100_t adu100s[10];
+
+
+
+
 int initialize() {
   // We need to initialize libusb before we can use it.
   return libusb_init(NULL);
@@ -140,26 +157,38 @@ int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _
 }
 
 int device_list(char *list) {
+  // Return a list of all ADU100 devices with alternating:
+  // bus number, device number, serial number
+  list[0] = '\0';
+  int result = 0;
+
+
+
+  // Get all devices on USB busses.  Make a list of libusb devices.
   libusb_device **devs;
   int count;
-  int result;
-  char new_string[100];
-  unsigned char serial_string[100];
   count = libusb_get_device_list(NULL, &devs);
-  struct libusb_device_handle * devh = NULL;
-
   // printf( "Found %u devices\n", count);
+
+  // Handles and descriptors to pass around
+  struct libusb_device_handle * devh = NULL;
   struct libusb_device_descriptor desc;
   if (count < 0) {
     libusb_exit(NULL);
     return -1;
   }
+  // Serial string will hold device information if we find an ADU100
+  unsigned char serial_string[100];
+
+  // We'll build up the return list with new_strings
+  char new_string[100];
   for (int i = 0; i < count; i++) {
+    // Loop through all found USB devices
     result = libusb_get_device_descriptor(devs[i], &desc);
     if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
+      // This is an Ontrak ADU100 device.  Open it to get the serial number.
       result = libusb_open(devs[i], &devh);
       result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
-      // serial_string[50] = '\0';
       // printf("Serial number %s\n", serial_string);
 
       // We found an ADU100.  Add it to the list.
@@ -175,5 +204,5 @@ int device_list(char *list) {
 
   }
   libusb_close(devh);
-  return 0;
+  return result;
 }

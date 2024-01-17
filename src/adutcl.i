@@ -7,6 +7,7 @@
 // Provides cstring_bounded_output allowing functions to return C strings to Tcl 
 %include cstring.i
 
+// Everything in here is copied into the wrapper file
 %{
   // Put header files here or function declarations like below
   #include <libusb-1.0/libusb.h>
@@ -18,6 +19,12 @@
   int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
   int device_list(char * _read_str);
 %}
+
+// Inline blocks are given to both the C compiler and SWIG
+%inline %{
+  // Number of discovered adu100s
+  extern int found_adu100s = 0;
+  %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here
 // means that we can't send a char* argument to read_from_adu even
@@ -31,6 +38,8 @@
 %init %{
   initialize();
 %}
+
+//************************* C declarations *************************//
 
 // Initialize libusb
 int initialize();
