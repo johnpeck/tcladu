@@ -22,8 +22,11 @@
 
 // Inline blocks are given to both the C compiler and SWIG
 %inline %{
+  
+
+  
   // Number of discovered adu100s
-  extern int found_adu100s = 0;
+  extern int found_adu100s;
   %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here

@@ -26,7 +26,7 @@ typedef struct adu100 {
 
 adu100_t adu100s[10];
 
-
+int found_adu100s = 0;
 
 
 int initialize() {
@@ -187,6 +187,7 @@ int device_list(char *list) {
     result = libusb_get_device_descriptor(devs[i], &desc);
     if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
       // This is an Ontrak ADU100 device.  Open it to get the serial number.
+      found_adu100s += 1;
       result = libusb_open(devs[i], &devh);
       result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
       // printf("Serial number %s\n", serial_string);
