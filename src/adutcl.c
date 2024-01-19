@@ -182,14 +182,21 @@ int device_list(char *list) {
 
   // We'll build up the return list with new_strings
   char new_string[100];
+
+  int found_adu100s_index = 0;
   for (int i = 0; i < count; i++) {
     // Loop through all found USB devices
     result = libusb_get_device_descriptor(devs[i], &desc);
     if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
       // This is an Ontrak ADU100 device.  Open it to get the serial number.
       found_adu100s += 1;
-      result = libusb_open(devs[i], &devh);
+      found_adu100s_index = found_adu100s - 1;
+      adu100s[found_adu100s_index].dev = devs[i]; 
+      // result = libusb_open(devs[i], &devh);
+      result = libusb_open(adu100s[found_adu100s_index].dev, &devh);
       result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
+
+      // result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
       // printf("Serial number %s\n", serial_string);
 
       // We found an ADU100.  Add it to the list.
