@@ -5,24 +5,18 @@
 #include <errno.h>
 #include <string.h>
 
+
 // libusb library must be available. It can be installed on
 // Debian/Ubuntu using apt-get install libusb-1.0-0-dev
 #include <libusb-1.0/libusb.h>
+
+#include "adutcl.h"
 
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE 8
 
 
-typedef struct adu100 {
-  // Serial number
-  unsigned char serial_string[100];
 
-  // Device from device list
-  libusb_device *dev;
-
-  // Device handle
-  libusb_device_handle *devh;
-} adu100_t;
 
 adu100_t adu100s[10];
 
@@ -177,8 +171,6 @@ int device_list(char *list) {
     libusb_exit(NULL);
     return -1;
   }
-  // Serial string will hold device information if we find an ADU100
-  unsigned char serial_string[100];
 
   // We'll build up the return list with new_strings
   char new_string[100];
@@ -192,18 +184,29 @@ int device_list(char *list) {
       found_adu100s += 1;
       found_adu100s_index = found_adu100s - 1;
       adu100s[found_adu100s_index].dev = devs[i]; 
-      // result = libusb_open(devs[i], &devh);
-      result = libusb_open(adu100s[found_adu100s_index].dev, &devh);
-      result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
 
-      // result = libusb_get_string_descriptor_ascii(devh, desc.iSerialNumber, serial_string, sizeof(serial_string));
-      // printf("Serial number %s\n", serial_string);
+      // Open the device to return a handle
+      result = libusb_open(adu100s[found_adu100s_index].dev, \
+			   &adu100s[found_adu100s_index].devh);
+
+      // Use the handle to get the serial number
+      result = libusb_get_string_descriptor_ascii(adu100s[found_adu100s_index].devh, \
+						  desc.iSerialNumber, \
+						  adu100s[found_adu100s_index].serial_string, \
+						  sizeof(adu100s[found_adu100s_index].serial_string));
+
+      // Set the bus number
+      adu100s[found_adu100s_index].bus_number = libusb_get_bus_number(adu100s[found_adu100s_index].dev);
+
+      // Set the device number
+      adu100s[found_adu100s_index].device_address = libusb_get_device_address(adu100s[found_adu100s_index].dev);
+
 
       // We found an ADU100.  Add it to the list.
       sprintf(new_string, "bus %d, device %d, serial %s ",
 	      libusb_get_bus_number(devs[i]),
 	      libusb_get_device_address(devs[i]),
-	      serial_string);
+	      adu100s[found_adu100s_index].serial_string);
       strcat(list, new_string);
     }
     // printf("%04x:%04x (bus %d, device %d)\n",
@@ -214,3 +217,12 @@ int device_list(char *list) {
   libusb_close(devh);
   return result;
 }
+
+
+void serial_number( int index, unsigned char * _read_str ) {
+  //_read_str = adu100s[index].serial_string;
+  // printf("%s\n", adu100s[index].serial_string);
+  strcat(_read_str, adu100s[index].serial_string);
+  return;
+}
+
