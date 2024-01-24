@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 // libusb library must be available. It can be installed on
 // Debian/Ubuntu using apt-get install libusb-1.0-0-dev
 #include <libusb-1.0/libusb.h>
@@ -15,13 +14,9 @@
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE 8
 
-
-
-
 adu100_t adu100s[10];
 
 int found_adu100s = 0;
-
 
 int initialize() {
   // We need to initialize libusb before we can use it.
@@ -156,18 +151,16 @@ int device_list(char *list) {
   list[0] = '\0';
   int result = 0;
 
-
-
   // Get all devices on USB busses.  Make a list of libusb devices.
   libusb_device **devs;
-  int count;
-  count = libusb_get_device_list(NULL, &devs);
-  // printf( "Found %u devices\n", count);
+  int found_devices;
+  found_devices = libusb_get_device_list(NULL, &devs);
+  // printf( "Found %u devices\n", found_devices);
 
   // Handles and descriptors to pass around
   struct libusb_device_handle * devh = NULL;
   struct libusb_device_descriptor desc;
-  if (count < 0) {
+  if (found_devices < 0) {
     libusb_exit(NULL);
     return -1;
   }
@@ -176,14 +169,14 @@ int device_list(char *list) {
   char new_string[100];
 
   int found_adu100s_index = 0;
-  for (int i = 0; i < count; i++) {
+  for (int i = 0; i < found_devices; i++) {
     // Loop through all found USB devices
     result = libusb_get_device_descriptor(devs[i], &desc);
     if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
       // This is an Ontrak ADU100 device.  Open it to get the serial number.
       found_adu100s += 1;
       found_adu100s_index = found_adu100s - 1;
-      adu100s[found_adu100s_index].dev = devs[i]; 
+      adu100s[found_adu100s_index].dev = devs[i];
 
       // Open the device to return a handle
       result = libusb_open(adu100s[found_adu100s_index].dev, \
@@ -201,7 +194,6 @@ int device_list(char *list) {
       // Set the device number
       adu100s[found_adu100s_index].device_address = libusb_get_device_address(adu100s[found_adu100s_index].dev);
 
-
       // We found an ADU100.  Add it to the list.
       sprintf(new_string, "bus %d, device %d, serial %s ",
 	      libusb_get_bus_number(devs[i]),
@@ -215,9 +207,64 @@ int device_list(char *list) {
 
   }
   libusb_close(devh);
-  return result;
+  return found_adu100s;
 }
 
+int discovered_devices() {
+  int found_adu100s = 0;
+  int result = 0;
+
+  // Get all devices on USB busses.  Make a list of libusb devices.
+  libusb_device **devs;
+  int found_devices;
+  found_devices = libusb_get_device_list(NULL, &devs);
+  // printf( "Found %u devices\n", found_devices);
+
+  // Handles and descriptors to pass around
+  struct libusb_device_handle * devh = NULL;
+  struct libusb_device_descriptor desc;
+  if (found_devices < 0) {
+    libusb_exit(NULL);
+    return -1;
+  }
+
+  // We'll build up the return list with new_strings
+  char new_string[100];
+
+  int found_adu100s_index = 0;
+  for (int i = 0; i < found_devices; i++) {
+    // Loop through all found USB devices
+    result = libusb_get_device_descriptor(devs[i], &desc);
+    if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
+      // This is an Ontrak ADU100 device.  Open it to get the serial number.
+      found_adu100s += 1;
+      found_adu100s_index = found_adu100s - 1;
+
+      // Populate members of the ADU100 database structure
+      adu100s[found_adu100s_index].dev = devs[i];
+
+      // Open the device to return a handle
+      result = libusb_open(adu100s[found_adu100s_index].dev, \
+			   &adu100s[found_adu100s_index].devh);
+
+      // Use the handle to get the serial number
+      result = libusb_get_string_descriptor_ascii(adu100s[found_adu100s_index].devh, \
+						  desc.iSerialNumber, \
+						  adu100s[found_adu100s_index].serial_string, \
+						  sizeof(adu100s[found_adu100s_index].serial_string));
+
+      // Set the bus number
+      adu100s[found_adu100s_index].bus_number = libusb_get_bus_number(adu100s[found_adu100s_index].dev);
+
+      // Set the device number
+      adu100s[found_adu100s_index].device_address = libusb_get_device_address(adu100s[found_adu100s_index].dev);
+
+    }
+
+  }
+  libusb_close(devh);
+  return found_adu100s;
+}
 
 void serial_number( int index, unsigned char * _read_str ) {
   //_read_str = adu100s[index].serial_string;

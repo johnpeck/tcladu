@@ -54,7 +54,7 @@
   initialize();
 %}
 
-//************************* C declarations *************************//
+//******** C functions exposed to the target language (Tcl) ********//
 
 // Initialize libusb
 int initialize();
@@ -67,3 +67,5 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
 int device_list(char * _read_str);
 
 // void serial_number( int index, char * _read_str );
+
+int discovered_devices();

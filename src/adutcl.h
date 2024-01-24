@@ -16,3 +16,9 @@ typedef struct adu100 {
   // USB device address
   int device_address;
 } adu100_t;
+
+// Return the count of ADU100s found on any bus, or an error code
+//
+// This function may fail if there's a problem with libusb or
+// permissions.  It will indicate failure with a negative return.
+int discovered_devices (void);
