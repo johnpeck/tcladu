@@ -11,6 +11,18 @@ set package_directory [file join {*}[lrange $test_directory_parts 0 end-1] packa
 
 lappend auto_path $package_directory
 
+proc iterint {start points} {
+    # Return a list of increasing integers starting with start with
+    # length points
+    set count 0
+    set intlist [list]
+    while {$count < $points} {
+	lappend intlist [expr $start + $count]
+	incr count
+    }
+    return $intlist
+}
+
 ######################## Command line parsing ########################
 #
 # Get cmdline from tcllib
@@ -21,6 +33,13 @@ set options {
     {v.arg 0.0 "Version to test"}
 }
 
+# Serial numbers
+#
+# We'll infer the number of attached devices from the number of serial numbers entered.
+foreach reference [iterint 1 10] {
+    lappend options [list sn${reference}.arg "" "Serial number of any attached ADU100"]
+}
+
 try {
     array set params [::cmdline::getoptions argv $options $usage]
 } trap {CMDLINE USAGE} {message optdict} {
@@ -29,6 +48,8 @@ try {
     puts $message
     exit 1
 }
+
+
     
 proc colorputs {newline text color} {
 
@@ -76,17 +97,7 @@ proc colorputs {newline text color} {
     
 }
 
-proc iterint {start points} {
-    # Return a list of increasing integers starting with start with
-    # length points
-    set count 0
-    set intlist [list]
-    while {$count < $points} {
-	lappend intlist [expr $start + $count]
-	incr count
-    }
-    return $intlist
-}
+
 
 proc fail_message { message } {
     # Print a fail message
@@ -134,7 +145,59 @@ proc test_require {} {
     
 }
 
+proc test_discovered_devices {} {
+    # Test that the software finds the correct number of devices
+    #
+    # This is the last test that expects a potential hardware failure
+    global params
+    set devices_to_find 0
+    foreach sernum [iterint 1 10] {
+	if { $params(sn$sernum) ne "" } {
+	    incr devices_to_find
+	}
+    }
+    set discovered_devices [adu100::discovered_devices]
+    if {$discovered_devices < 0} {
+	fail_message "Discovery failed, error code $discovered_devices"
+	exit
+    }
+    if {$discovered_devices == 0} {
+	fail_message "No ADU100s found"
+	exit
+    }
+    if {$discovered_devices == $devices_to_find} {
+	pass_message "Found $discovered_devices ADU100, expected $devices_to_find"
+	return
+    }
+    
+}
+
+proc test_serial_numbers {} {
+    # Test that the connected devices show the expected serial numbers
+    global params
+    foreach sernum [iterint 1 10] {
+	if { $params(sn$sernum) ne "" } {
+	    lappend serial_number_list $params(sn$sernum)
+	}
+    }
+    set index 0
+    foreach sernum $serial_number_list {
+	lappend found_serial_number_list [adu100::serial_number $index]
+	incr index
+    }
+    # Found serial numbers can come in any order
+    foreach sernum $serial_number_list {
+	if {[lsearch -exact $found_serial_number_list $sernum] < 0} {
+	    fail_message "Did not find $sernum in the discovered list: $found_serial_number_list"
+	    exit
+	}
+    }
+    pass_message "Found serial numbers $found_serial_number_list, expected $serial_number_list"
+    return
+}
 
 ########################## Main entry point ##########################
 
 test_require
+test_discovered_devices
+test_serial_numbers

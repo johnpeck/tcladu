@@ -7,6 +7,12 @@ rootname = adutcl
 
 version = 1.0
 
+########################## Test parameters ###########################
+
+# Serial numbers
+adu100_sn_1 = B02597
+
+
 ###################### Done with configuration #######################
 
 # SWIG flags
@@ -15,7 +21,7 @@ version = 1.0
 SFLAGS = -tcl
 
 # Provide procedures in a namespace
-SFLAGS += -prefix adu -namespace
+SFLAGS += -prefix adu100 -namespace
 
 # C compiler
 CC = gcc
@@ -106,7 +112,7 @@ $(rootname).so: $(OBJ)
 
 .PHONY: test
 test:
-	tclsh ../test/test.tcl -v $(version)
+	tclsh ../test/test.tcl -v $(version) -sn1 $(adu100_sn_1)
 
 # Display compiler version information.
 gccversion :

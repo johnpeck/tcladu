@@ -22,3 +22,12 @@ typedef struct adu100 {
 // This function may fail if there's a problem with libusb or
 // permissions.  It will indicate failure with a negative return.
 int discovered_devices (void);
+
+
+// Return the serial number of the nth discovered device
+//
+// Arguments:
+//
+//   index -- 0 to (connected ADU100s -1)
+//   _read_str -- String to contain the output (not needed with SWIG)
+void serial_number( int index, unsigned char * _read_str );

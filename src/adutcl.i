@@ -44,7 +44,6 @@
 
   extern adu100_t adu100s[10];
 
-  void serial_number( int index, char * _read_str );
   %}
 
 
@@ -66,6 +65,6 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
 
 int device_list(char * _read_str);
 
-// void serial_number( int index, char * _read_str );
+void serial_number( int index, unsigned char * _read_str );
 
 int discovered_devices();
