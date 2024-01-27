@@ -2,7 +2,7 @@
 
 typedef struct adu100 {
   // Serial number
-  unsigned char serial_string[100];
+  char serial_string[100];
 
   // Device from device list
   libusb_device *dev;
@@ -30,4 +30,4 @@ int discovered_devices (void);
 //
 //   index -- 0 to (connected ADU100s -1)
 //   _read_str -- String to contain the output (not needed with SWIG)
-void serial_number( int index, unsigned char * _read_str );
+void serial_number( int index, char * _read_str );
