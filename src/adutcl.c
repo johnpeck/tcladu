@@ -208,9 +208,7 @@ int discovered_devices() {
 }
 
 void serial_number( int index, char * _read_str ) {
-  //_read_str = adu100s[index].serial_string;
-  // printf("%s\n", adu100s[index].serial_string);
-  strcat(_read_str, adu100s[index].serial_string);
+  strcpy( _read_str, adu100s[index].serial_string);
   return;
 }
 
