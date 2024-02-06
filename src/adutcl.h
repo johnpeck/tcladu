@@ -28,6 +28,21 @@ int discovered_devices (void);
 //
 // Arguments:
 //
-//   index -- 0 to (connected ADU100s -1)
+//   index -- 0 to (connected ADU100s - 1)
 //   _read_str -- String to contain the output (not needed with SWIG)
 void serial_number( int index, char * _read_str );
+
+// Return the handle for the nth discovered device
+//
+// Arguments:
+//
+//   index -- 0 to (connected ADU100s - 1)
+libusb_device_handle *handle( int index );
+
+
+// Initialize the ADU100 interface
+//
+// Arguments:
+//
+//   index -- 0 to (connected ADU100s -1)
+int initialize_device( int index );

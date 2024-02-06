@@ -57,3 +57,7 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
 void serial_number( int index, char * _read_str );
 
 int discovered_devices();
+
+libusb_device_handle *handle( int index );
+
+int initialize_device( int index );

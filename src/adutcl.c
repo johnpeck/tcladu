@@ -212,3 +212,27 @@ void serial_number( int index, char * _read_str ) {
   return;
 }
 
+
+libusb_device_handle *handle( int index ) {
+  return adu100s[index].devh;
+}
+
+int initialize_device( int index ) {
+  int retval = 0;
+  libusb_device_handle *device_handle = handle( index );
+  
+  // Enable auto-detaching of the kernel driver.
+  // If a kernel driver currently has an interface claimed, it will be automatically be detached
+  // when we claim that interface. When the interface is restored, the kernel driver is allowed
+  // to be re-attached. This can alternatively be manually done via libusb_detach_kernel_driver().
+  libusb_set_auto_detach_kernel_driver( device_handle, 1 );
+
+  // Claim interface 0 on the device
+  retval = libusb_claim_interface( device_handle, 0 );
+
+  if ( retval < 0 ) {
+    printf( "Error claiming interface: %s\n", libusb_error_name( retval ) );
+  }
+  
+  return retval;
+}

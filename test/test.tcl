@@ -123,6 +123,19 @@ proc indented_message { message } {
     puts $message
 }
 
+proc serial_number_list {} {
+    # Return a list of connected serial numbers
+    #
+    # Must run discovered_devices before this works
+    foreach index [iterint 0 10] {
+	if { [string length [adu100::serial_number $index]] > 2 } {
+	    # Empty serial numbers will return {}, which has a string length of 2
+	    lappend serial_number_list [adu100::serial_number $index]
+	}
+    }
+    return $serial_number_list
+}
+
 proc test_require {} {
     # Test requiring the package and the package version
     global params
@@ -177,24 +190,23 @@ proc test_serial_numbers {} {
     global params
     foreach sernum [iterint 1 10] {
 	if { $params(sn$sernum) ne "" } {
-	    lappend serial_number_list $params(sn$sernum)
+	    lappend expected_number_list $params(sn$sernum)
 	}
     }
     set index 0
-    foreach sernum $serial_number_list {
-	lappend found_serial_number_list [adu100::serial_number $index]
-	incr index
-    }
+    set found_number_list [serial_number_list]
     # Found serial numbers can come in any order
-    foreach sernum $serial_number_list {
-	if {[lsearch -exact $found_serial_number_list $sernum] < 0} {
-	    fail_message "Did not find $sernum in the discovered list: $found_serial_number_list"
+    foreach sernum $expected_number_list {
+	if {[lsearch -exact $found_number_list $sernum] < 0} {
+	    fail_message "Did not find $sernum in the discovered list: $found_number_list"
 	    exit
 	}
     }
-    pass_message "Found serial numbers $found_serial_number_list, expected $serial_number_list"
+    pass_message "Found serial numbers $found_number_list, expected $expected_number_list"
     return
 }
+
+
 
 ########################## Main entry point ##########################
 
