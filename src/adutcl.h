@@ -58,3 +58,13 @@ int initialize_device( int index );
 //   command -- command to send
 //   timeout_ms -- timeout passed to libusb_interrupt_transfer (ms)
 int write_device( int index, const char *command, int timeout_ms);
+
+// Read from an ADU100
+//
+// Arguments:
+//
+//   index -- 0 to (connected ADU100s -1)
+//   _read_str -- Dummy argument handled by SWIG
+//   chars_to_read -- Characters to read from the device
+//   timeout_ms -- timeout passed to libusb_interrupt_transfer (ms)
+int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms );

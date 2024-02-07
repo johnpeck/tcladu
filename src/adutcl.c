@@ -277,5 +277,44 @@ int write_device( int index, const char *command, int timeout_ms) {
     printf( "Error sending interrupt transfer: %s\n", libusb_error_name( result ) );
   }
 
-  return result; // Returns 0 on success, a negative number specifying the libusb error otherwise
+  // Returns 0 on success, a negative number specifying the libusb error otherwise
+  return result; 
+}
+
+int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms ) {
+  if ( _read_str == NULL || chars_to_read < 8 ) {
+    return -2;
+  }
+
+  libusb_device_handle *device_handle = handle( index );
+
+
+  // Buffer to hold the command we will receive from the ADU device
+  // Its size is set to the transfer size for low or full speed USB devices (ADU model specific - see defines at top of file)
+  unsigned char buffer[ TRANSFER_SIZE ];
+
+  // Zero out buffer to pad with null values (command buffer needs
+  // to be padded with 0s)
+  memset( buffer, 0, TRANSFER_SIZE );
+
+  // Attempt to read the result from the IN endpoint (0x81) with user specified timeout
+  int bytes_read = 0;
+  int result = libusb_interrupt_transfer( device_handle, 0x81, buffer, TRANSFER_SIZE, &bytes_read, timeout_ms );
+  printf( "Read result: %i, Bytes read: %u\n", result, bytes_read );
+
+  if ( result < 0 ) {
+    printf( "Error reading interrupt transfer: %s\n", libusb_error_name( result ) );
+    return result;
+  }
+
+  // The buffer should now hold the data read from the ADU
+  // device. The first byte will contain 0x01, the remaining bytes
+  // are the returned value in string format. Let's copy the string
+  // from the read buffer, starting at index 1, to our _read_str
+  // buffer
+  memcpy( _read_str, &buffer[1], 7 );
+  _read_str[7] = '\0'; // null terminate the string
+  // printf( "Read value as string: %s\n", _read_str );
+
+  return result; // returns 0 on success, a negative number specifying the libusb error otherwise
 }
