@@ -221,9 +221,12 @@ int initialize_device( int index ) {
   libusb_device_handle *device_handle = handle( index );
   
   // Enable auto-detaching of the kernel driver.
-  // If a kernel driver currently has an interface claimed, it will be automatically be detached
-  // when we claim that interface. When the interface is restored, the kernel driver is allowed
-  // to be re-attached. This can alternatively be manually done via libusb_detach_kernel_driver().
+  //
+  // If a kernel driver currently has an interface claimed, it will be
+  // automatically be detached when we claim that interface. When the
+  // interface is restored, the kernel driver is allowed to be
+  // re-attached. This can alternatively be manually done via
+  // libusb_detach_kernel_driver().
   libusb_set_auto_detach_kernel_driver( device_handle, 1 );
 
   // Claim interface 0 on the device
@@ -271,7 +274,7 @@ int write_device( int index, const char *command, int timeout_ms) {
   // Attempt to send the command to the OUT endpoint (0x01) with the
   // user specified millisecond timeout
   int result = libusb_interrupt_transfer( device_handle, 0x01, buffer, TRANSFER_SIZE, &bytes_sent, timeout_ms );
-  printf( "Write '%s' result: %i, Bytes sent: %u\n", command, result, bytes_sent );
+  // printf( "Write '%s' result: %i, Bytes sent: %u\n", command, result, bytes_sent );
 
   if ( result < 0 ) {
     printf( "Error sending interrupt transfer: %s\n", libusb_error_name( result ) );

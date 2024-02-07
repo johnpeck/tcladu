@@ -206,6 +206,33 @@ proc test_serial_numbers {} {
     return
 }
 
+proc test_initializing_device {} {
+    # Test claiming interface 0 on an ADU100
+    global params
+    set result [adu100::initialize_device 0]
+    if { $result == 0 } {
+	pass_message "Initialized ADU100 0"
+    } else {
+	fail_message "Failed to initialize ADU100 0, return value $result"
+	exit
+    }
+    return
+}
+
+proc test_writing_to_device {} {
+    # Test writing to ADU100 0
+    global params
+    # RUC100 is the command to read from analog input 0 after
+    # performing a self calibration.
+    set result [adu100::write_device 0 "RUC00" 200]
+    if { $result == 0 } {
+	pass_message "Wrote 'RUC00' to ADU100 0"
+    } else {
+	fail_message "Failed to write to ADU100 0, return value $result"
+	exit
+    }
+    return
+}
 
 
 ########################## Main entry point ##########################
@@ -213,3 +240,5 @@ proc test_serial_numbers {} {
 test_require
 test_discovered_devices
 test_serial_numbers
+test_initializing_device
+test_writing_to_device
