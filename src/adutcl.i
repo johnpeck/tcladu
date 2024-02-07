@@ -61,3 +61,5 @@ int discovered_devices();
 libusb_device_handle *handle( int index );
 
 int initialize_device( int index );
+
+int write_device( int index, const char *command, int timeout_ms);

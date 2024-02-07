@@ -1,5 +1,8 @@
 
 
+// ADU100 is a low-speed device, so we must use 8 byte transfers
+#define TRANSFER_SIZE 8
+
 typedef struct adu100 {
   // Serial number
   char serial_string[100];
@@ -46,3 +49,12 @@ libusb_device_handle *handle( int index );
 //
 //   index -- 0 to (connected ADU100s -1)
 int initialize_device( int index );
+
+// Write a command to an ADU100
+//
+// Arguments:
+//
+//   index -- 0 to (connected ADU100s -1)
+//   command -- command to send
+//   timeout_ms -- timeout passed to libusb_interrupt_transfer (ms)
+int write_device( int index, const char *command, int timeout_ms);
