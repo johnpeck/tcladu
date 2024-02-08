@@ -49,8 +49,6 @@ try {
     exit 1
 }
 
-
-    
 proc colorputs {newline text color} {
 
     set colorlist [list black red green yellow blue magenta cyan white]
@@ -94,10 +92,8 @@ proc colorputs {newline text color} {
 	    puts "$text$ansi(reset)"
 	}
     }
-    
+
 }
-
-
 
 proc fail_message { message } {
     # Print a fail message
@@ -125,13 +121,8 @@ proc indented_message { message } {
 
 proc serial_number_list {} {
     # Return a list of connected serial numbers
-    #
-    # Must run discovered_devices before this works
-    foreach index [iterint 0 10] {
-	if { [string length [adu100::serial_number $index]] > 2 } {
-	    # Empty serial numbers will return {}, which has a string length of 2
-	    lappend serial_number_list [adu100::serial_number $index]
-	}
+    foreach index [iterint 0 [adu100::discovered_devices]] {
+	lappend serial_number_list [adu100::serial_number $index]
     }
     return $serial_number_list
 }
@@ -155,7 +146,7 @@ proc test_require {} {
 	indented_message "Expected $params(v), got $version"
 	exit
     }
-    
+
 }
 
 proc test_discovered_devices {} {
@@ -182,7 +173,7 @@ proc test_discovered_devices {} {
 	pass_message "Found $discovered_devices ADU100, expected $devices_to_find"
 	return
     }
-    
+
 }
 
 proc test_serial_numbers {} {
@@ -234,11 +225,29 @@ proc test_writing_to_device {} {
     return
 }
 
+proc test_reading_from_device {} {
+    # Test reading from ADU100 0
+    global params
+    set result [adu100::read_device 0 8 200]
+    # Result should be a list, with the first element indicating success
+    if { [lindex $result 0] == 0 } {
+	pass_message "Read [lindex $result 1] from ADU100 0"
+    } else {
+	fail_message "Failed to read from ADU100 0"
+	exit
+    }
+    return
+}
 
 ########################## Main entry point ##########################
 
 test_require
+
 test_discovered_devices
 test_serial_numbers
 test_initializing_device
+
+# Reading and writing have to be done in pairs
 test_writing_to_device
+test_reading_from_device
+

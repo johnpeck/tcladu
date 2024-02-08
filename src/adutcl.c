@@ -303,7 +303,7 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   // Attempt to read the result from the IN endpoint (0x81) with user specified timeout
   int bytes_read = 0;
   int result = libusb_interrupt_transfer( device_handle, 0x81, buffer, TRANSFER_SIZE, &bytes_read, timeout_ms );
-  printf( "Read result: %i, Bytes read: %u\n", result, bytes_read );
+  // printf( "Read result: %i, Bytes read: %u\n", result, bytes_read );
 
   if ( result < 0 ) {
     printf( "Error reading interrupt transfer: %s\n", libusb_error_name( result ) );
