@@ -319,5 +319,7 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   _read_str[7] = '\0'; // null terminate the string
   // printf( "Read value as string: %s\n", _read_str );
 
+  
+  
   return result; // returns 0 on success, a negative number specifying the libusb error otherwise
 }

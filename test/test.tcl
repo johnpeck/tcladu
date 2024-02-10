@@ -111,6 +111,14 @@ proc pass_message { message } {
     puts $message
 }
 
+proc info_message { message } {
+    # Print an informational message
+    puts -nonewline "\["
+    colorputs -nonewline "info" blue
+    puts -nonewline "\] "
+    puts $message
+}
+
 proc indented_message { message } {
     # Print a message indented to the end of a pass/fail block
     foreach character [iterint 0 7] {
@@ -119,12 +127,68 @@ proc indented_message { message } {
     puts $message
 }
 
+namespace eval libusb_errors {
+    variable timeout -7
+}
+
 proc serial_number_list {} {
     # Return a list of connected serial numbers
     foreach index [iterint 0 [adu100::discovered_devices]] {
 	lappend serial_number_list [adu100::serial_number $index]
     }
     return $serial_number_list
+}
+
+proc send_command { index command } {
+    set timeout_ms 200
+
+    set t0 [clock clicks -millisec]
+    set result [adu100::write_device $index $command $timeout_ms]
+    puts "Received result from adu100::write_device sending $command in [expr [clock clicks -millisec]-$t0] ms"
+    return $result
+}
+
+proc read_response { index } {
+    set timeout_ms 200
+    set t0 [clock clicks -millisec]
+    foreach trial [iterint 0 100] {
+	set result [adu100::read_device $index 8 200]
+	if {[lindex $result 0] == 0} {
+	    puts "Received $result from adu100::read_device in [expr [clock clicks -millisec]-$t0] ms"
+	    return $result
+	}
+    }
+    return -1
+}
+
+proc query { index command } {
+    set timeout_ms 200
+    set t0 [clock clicks -millisec]
+    # Assume that send command will work perfectly
+    send_command $index $command
+    foreach trial [iterint 0 100] {
+	set result [adu100::read_device $index 8 $timeout_ms]
+	if {[lindex $result 0] == 0} {
+	    puts "Received $result from $command query in [expr [clock clicks -millisec]-$t0] ms"
+	    return $result
+	}
+    }
+    return -1
+}
+
+proc clear_queue { index } {
+    info_message "Clearing ADU100 $index output queue"
+    set timeout_ms 10
+    set t0 [clock clicks -millisec]
+    foreach trial [iterint 0 10] {
+	set result [adu100::read_device 0 8 $timeout_ms]
+	if {[lindex $result 0] == -7} {
+	    # The device has timed out, so the queue is empty
+	    puts "Received $result from adu100::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
+	    return
+	}
+    }
+    
 }
 
 proc test_require {} {
@@ -197,6 +261,8 @@ proc test_serial_numbers {} {
     return
 }
 
+
+
 proc test_initializing_device {} {
     # Test claiming interface 0 on an ADU100
     global params
@@ -215,7 +281,8 @@ proc test_writing_to_device {} {
     global params
     # RUC100 is the command to read from analog input 0 after
     # performing a self calibration.
-    set result [adu100::write_device 0 "RUC00" 200]
+    # set result [adu100::write_device 0 "RUC00" 200]
+    set result [send_command 0 "RUC00"]
     if { $result == 0 } {
 	pass_message "Wrote 'RUC00' to ADU100 0"
     } else {
@@ -228,7 +295,8 @@ proc test_writing_to_device {} {
 proc test_reading_from_device {} {
     # Test reading from ADU100 0
     global params
-    set result [adu100::read_device 0 8 200]
+    # set result [adu100::read_device 0 8 200]
+    set result [read_response 0]
     # Result should be a list, with the first element indicating success
     if { [lindex $result 0] == 0 } {
 	pass_message "Read [lindex $result 1] from ADU100 0"
@@ -239,7 +307,37 @@ proc test_reading_from_device {} {
     return
 }
 
+proc test_closing_relay {} {
+    global params
+    # SK0 "sets" (closes) relay contact 0, the only relay
+    set result [send_command 0 "SK0"]
+    if { $result == 0 } {
+	pass_message "Wrote 'SK0' to ADU100 0"
+    } else {
+	fail_message "Failed to write 'SK0' to ADU100 0"
+	exit
+    }
+
+    # RPK0 queries the status of relay 0
+    set result [query 0 "RPK0"]
+    # set result [send_command 0 "RPK0"]
+    # set result [read_response 0]
+    
+    if { [lindex $result 0] == 0 && [lindex $result 1] == 1 } {
+	pass_message "Closed relay"
+    }
+
+    # Reset the relay
+    set result [send_command 0 "RK0"]
+
+    set result [query 0 "RPK0"]
+    if { [lindex $result 0] == 0 && [lindex $result 1] == 0 } {
+	pass_message "Reset (opened) relay"
+    }
+}
+
 ########################## Main entry point ##########################
+
 
 test_require
 
@@ -247,7 +345,12 @@ test_discovered_devices
 test_serial_numbers
 test_initializing_device
 
+clear_queue 0
+
 # Reading and writing have to be done in pairs
 test_writing_to_device
+
+
 test_reading_from_device
 
+test_closing_relay
