@@ -12,8 +12,13 @@
 // Everything in here is copied into the wrapper file
 %{
   // Put header files here or function declarations like below
-#include <libusb-1.0/libusb.h>
+  #include <libusb-1.0/libusb.h>
+
+  // Initialize libusb and anything not device hardware related.  This
+  // has to be in the wrapper section, since it will get called when
+  // the module is required.
   int initialize();
+  
   libusb_device_handle *  open_device(int vid, int pid);
   int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
 
