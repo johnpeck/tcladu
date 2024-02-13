@@ -140,12 +140,18 @@ proc serial_number_list {} {
 }
 
 proc send_command { index command } {
+    # Send a command and return a list of success code, elapsed time
+    #
+    # Arguments:
+    #   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+    #   command -- The ASCII command to send
     set timeout_ms 200
 
     set t0 [clock clicks -millisec]
-    set result [adu100::write_device $index $command $timeout_ms]
+    set success_code [adu100::write_device $index $command $timeout_ms]
+    set elapsed_ms [expr [clock clicks -millisec] - $t0]
     puts "Received result from adu100::write_device sending $command in [expr [clock clicks -millisec]-$t0] ms"
-    return $result
+    return [list $success_code $elapsed_ms]
 }
 
 proc read_response { index } {
@@ -188,7 +194,7 @@ proc clear_queue { index } {
 	    return
 	}
     }
-    
+
 }
 
 proc test_require {} {
@@ -261,8 +267,6 @@ proc test_serial_numbers {} {
     return
 }
 
-
-
 proc test_initializing_device {} {
     # Test claiming interface 0 on an ADU100
     global params
@@ -281,10 +285,13 @@ proc test_writing_to_device {} {
     global params
     # RUC100 is the command to read from analog input 0 after
     # performing a self calibration.
-    # set result [adu100::write_device 0 "RUC00" 200]
+
+    # send_command will always return a list of [success_code,
+    # elapsed_ms], even when there's an error.
     set result [send_command 0 "RUC00"]
-    if { $result == 0 } {
-	pass_message "Wrote 'RUC00' to ADU100 0"
+    set elapsed_ms [lindex $result 1]
+    if { [lindex $result 0] == 0 } {
+	pass_message "Wrote 'RUC00' to ADU100 0 in $elapsed_ms ms"
     } else {
 	fail_message "Failed to write to ADU100 0, return value $result"
 	exit
@@ -322,7 +329,7 @@ proc test_closing_relay {} {
     set result [query 0 "RPK0"]
     # set result [send_command 0 "RPK0"]
     # set result [read_response 0]
-    
+
     if { [lindex $result 0] == 0 && [lindex $result 1] == 1 } {
 	pass_message "Closed relay"
     }
@@ -338,7 +345,6 @@ proc test_closing_relay {} {
 
 ########################## Main entry point ##########################
 
-
 test_require
 
 test_discovered_devices
@@ -349,7 +355,6 @@ clear_queue 0
 
 # Reading and writing have to be done in pairs
 test_writing_to_device
-
 
 test_reading_from_device
 
