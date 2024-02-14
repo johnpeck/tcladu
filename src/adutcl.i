@@ -21,11 +21,9 @@
   // the module is required.
   int initialize_package();
 
-  int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
-
   // See the comment for cstring_bounded_output for why we omit _read_str when we call this.
   int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
-  
+
 %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here
@@ -55,7 +53,6 @@
 // Initialize libusb
 int initialize_package();
 
-int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
 
 void serial_number( int index, char * _read_str );

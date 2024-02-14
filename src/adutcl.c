@@ -61,48 +61,6 @@ int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int 
   return result; // returns 0 on success, a negative number specifying the libusb error otherwise
 }
 
-// Write a command to an ADU device with a specified timeout
-int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout ) {
-  // Get the length of the command string we are sending
-  const int command_len = strlen( _cmd );
-
-  int bytes_sent = 0;
-
-  // Buffer to hold the command we will send to the ADU device.
-  //
-  // Its size is set to the transfer size for low or full speed USB
-  // devices (ADU model specific - see defines at top of file)
-  unsigned char buffer[ TRANSFER_SIZE ];
-
-  if ( command_len > TRANSFER_SIZE ) {
-    printf( "Error: command is larger than our limit of %i\n", TRANSFER_SIZE );
-    return -1;
-  }
-
-  // Zero out buffer to pad with null values (command buffer needs to
-  // be padded with 0s)
-  memset( buffer, 0, TRANSFER_SIZE );
-
-  // First byte of the command buffer needs to be set to a decimal
-  // value of 1
-  buffer[0] = 0x01;
-
-  // Copy the command ASCII bytes into our buffer, starting at the
-  // second byte (we need to leave the first byte as decimal value 1)
-  memcpy( &buffer[1], _cmd, command_len );
-
-  // Attempt to send the command to the OUT endpoint (0x01) with the
-  // use specified millisecond timeout
-  int result = libusb_interrupt_transfer( device_handle, 0x01, buffer, TRANSFER_SIZE, &bytes_sent, _timeout );
-  printf( "Write '%s' result: %i, Bytes sent: %u\n", _cmd, result, bytes_sent );
-
-  if ( result < 0 ) {
-    printf( "Error sending interrupt transfer: %s\n", libusb_error_name( result ) );
-  }
-
-  return result; // Returns 0 on success, a negative number specifying the libusb error otherwise
-}
-
 int discovered_devices() {
   int found_adu100s = 0;
   int result = 0;
