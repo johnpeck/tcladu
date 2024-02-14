@@ -11,14 +11,14 @@
 
 #include "adutcl.h"
 
-
-
-adu100_t adu100s[10];
+adu100_t adu100s[MAX_DEVICES];
 
 int found_adu100s = 0;
 
-int initialize() {
-  // We need to initialize libusb before we can use it.
+int initialize_package() {
+  // Initialize everything not hardware related after loading the package.
+  //
+  // We need to call libusb_init before we can use libusb
   return libusb_init(NULL);
 }
 
@@ -144,8 +144,6 @@ int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _
   return result; // Returns 0 on success, a negative number specifying the libusb error otherwise
 }
 
-
-
 int discovered_devices() {
   int found_adu100s = 0;
   int result = 0;
@@ -201,7 +199,7 @@ int discovered_devices() {
   }
   libusb_close(devh);
   if (result == 0) {
-    return found_adu100s;    
+    return found_adu100s;
   }
   return found_adu100s;
 }
@@ -211,7 +209,6 @@ void serial_number( int index, char * _read_str ) {
   return;
 }
 
-
 libusb_device_handle *handle( int index ) {
   return adu100s[index].devh;
 }
@@ -219,7 +216,7 @@ libusb_device_handle *handle( int index ) {
 int initialize_device( int index ) {
   int retval = 0;
   libusb_device_handle *device_handle = handle( index );
-  
+
   // Enable auto-detaching of the kernel driver.
   //
   // If a kernel driver currently has an interface claimed, it will be
@@ -235,10 +232,9 @@ int initialize_device( int index ) {
   if ( retval < 0 ) {
     printf( "Error claiming interface: %s\n", libusb_error_name( retval ) );
   }
-  
+
   return retval;
 }
-
 
 int write_device( int index, const char *command, int timeout_ms) {
   // Get the length of the command string we are sending
@@ -281,7 +277,7 @@ int write_device( int index, const char *command, int timeout_ms) {
   }
 
   // Returns 0 on success, a negative number specifying the libusb error otherwise
-  return result; 
+  return result;
 }
 
 int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms ) {
@@ -290,7 +286,6 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   }
 
   libusb_device_handle *device_handle = handle( index );
-
 
   // Buffer to hold the command we will receive from the ADU device
   // Its size is set to the transfer size for low or full speed USB devices (ADU model specific - see defines at top of file)
@@ -319,7 +314,5 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   _read_str[7] = '\0'; // null terminate the string
   // printf( "Read value as string: %s\n", _read_str );
 
-  
-  
   return result; // returns 0 on success, a negative number specifying the libusb error otherwise
 }

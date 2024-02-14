@@ -150,7 +150,7 @@ proc send_command { index command } {
     set t0 [clock clicks -millisec]
     set success_code [adu100::write_device $index $command $timeout_ms]
     set elapsed_ms [expr [clock clicks -millisec] - $t0]
-    puts "Received result from adu100::write_device sending $command in [expr [clock clicks -millisec]-$t0] ms"
+    indented_message "Received result from adu100::write_device sending $command in [expr [clock clicks -millisec]-$t0] ms"
     return [list $success_code $elapsed_ms]
 }
 
@@ -190,7 +190,7 @@ proc clear_queue { index } {
 	set result [adu100::read_device 0 8 $timeout_ms]
 	if {[lindex $result 0] == -7} {
 	    # The device has timed out, so the queue is empty
-	    puts "Received $result from adu100::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
+	    indented_message "Received $result from adu100::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
 	    return
 	}
     }
@@ -318,8 +318,10 @@ proc test_closing_relay {} {
     global params
     # SK0 "sets" (closes) relay contact 0, the only relay
     set result [send_command 0 "SK0"]
-    if { $result == 0 } {
-	pass_message "Wrote 'SK0' to ADU100 0"
+    set success_code [lindex $result 0]
+    set elapsed_ms [lindex $result 1]
+    if { $success_code == 0 } {
+	pass_message "Wrote 'SK0' to ADU100 0 in $elapsed_ms ms"
     } else {
 	fail_message "Failed to write 'SK0' to ADU100 0"
 	exit

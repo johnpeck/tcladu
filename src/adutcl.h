@@ -3,6 +3,9 @@
 // ADU100 is a low-speed device, so we must use 8 byte transfers
 #define TRANSFER_SIZE 8
 
+// Maximum number of ADU100 devices allowed
+#define MAX_DEVICES 10
+
 typedef struct adu100 {
   // Serial number
   char serial_string[100];

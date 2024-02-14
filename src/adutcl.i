@@ -17,7 +17,7 @@
   // Initialize libusb and anything not device hardware related.  This
   // has to be in the wrapper section, since it will get called when
   // the module is required.
-  int initialize();
+  int initialize_package();
   
   libusb_device_handle *  open_device(int vid, int pid);
   int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
@@ -41,18 +41,18 @@
   // Number of discovered adu100s
   extern int found_adu100s;
 
-  extern adu100_t adu100s[10];
+  extern adu100_t adu100s[MAX_DEVICES];
 %}
 
 // Perform libusb initialization when the module is loaded
 %init %{
-  initialize();
+  initialize_package();
 %}
 
 //******** C functions exposed to the target language (Tcl) ********//
 
 // Initialize libusb
-int initialize();
+int initialize_package();
 
 libusb_device_handle * open_device(int vid, int pid);
 
