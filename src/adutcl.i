@@ -14,6 +14,8 @@
   // Put header files here or function declarations like below
   #include <libusb-1.0/libusb.h>
 
+  #include "adutcl.h"
+
   // Initialize libusb and anything not device hardware related.  This
   // has to be in the wrapper section, since it will get called when
   // the module is required.
@@ -23,7 +25,7 @@
 
   // See the comment for cstring_bounded_output for why we omit _read_str when we call this.
   int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
-  #include "adutcl.h"
+  
 %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here
