@@ -18,8 +18,7 @@
   // has to be in the wrapper section, since it will get called when
   // the module is required.
   int initialize_package();
-  
-  libusb_device_handle *  open_device(int vid, int pid);
+
   int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
 
   // See the comment for cstring_bounded_output for why we omit _read_str when we call this.
@@ -53,8 +52,6 @@
 
 // Initialize libusb
 int initialize_package();
-
-libusb_device_handle * open_device(int vid, int pid);
 
 int write_to_adu( libusb_device_handle * device_handle, const char * _cmd, int _timeout );
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );

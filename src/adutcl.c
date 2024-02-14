@@ -22,48 +22,7 @@ int initialize_package() {
   return libusb_init(NULL);
 }
 
-// Per the SWIG documentation:
-//
-// All pointers are treated as opaque objects by SWIG. Thus, a pointer
-// may be returned by a function and passed around to other C
-// functions as needed.
-//
-// So it's not strange that the device handle isn't declared globally.
-libusb_device_handle * open_device(int vid, int pid) {
-  int result;
 
-  // Our ADU's USB device handle
-  struct libusb_device_handle * device_handle = NULL;
-
-  // Set debugging output to max level
-  libusb_set_option( NULL, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_WARNING );
-
-  // Open the ADU device that matches our vendor id and product id
-  device_handle = libusb_open_device_with_vid_pid( NULL, vid, pid );
-  if ( !device_handle ) {
-    printf( "Error finding USB device\n" );
-    libusb_exit( NULL );
-    exit( -2 );
-  }
-
-  // Enable auto-detaching of the kernel driver.
-  // If a kernel driver currently has an interface claimed, it will be automatically be detached
-  // when we claim that interface. When the interface is restored, the kernel driver is allowed
-  // to be re-attached. This can alternatively be manually done via libusb_detach_kernel_driver().
-  libusb_set_auto_detach_kernel_driver( device_handle, 1 );
-
-  // Claim interface 0 on the device
-  result = libusb_claim_interface( device_handle, 0 );
-  if ( result < 0 ) {
-    printf( "Error claiming interface: %s\n", libusb_error_name( result ) );
-    if ( device_handle ) {
-      libusb_close( device_handle );
-    }
-    libusb_exit( NULL );
-    exit( -3 );
-  }
-  return device_handle;
-}
 
 // Read a command from an ADU device with a specified timeout
 int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout ) {
