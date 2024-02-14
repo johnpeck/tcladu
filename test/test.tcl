@@ -150,7 +150,7 @@ proc send_command { index command } {
     set t0 [clock clicks -millisec]
     set success_code [adu100::write_device $index $command $timeout_ms]
     set elapsed_ms [expr [clock clicks -millisec] - $t0]
-    indented_message "Received result from adu100::write_device sending $command in [expr [clock clicks -millisec]-$t0] ms"
+    indented_message "Received success code from adu100::write_device sending $command in $elapsed_ms ms"
     return [list $success_code $elapsed_ms]
 }
 
@@ -175,8 +175,13 @@ proc query { index command } {
     foreach trial [iterint 0 100] {
 	set result [adu100::read_device $index 8 $timeout_ms]
 	if {[lindex $result 0] == 0} {
-	    puts "Received $result from $command query in [expr [clock clicks -millisec]-$t0] ms"
-	    return $result
+	    set elapsed_ms [expr [clock clicks -millisec] - $t0]
+	    set success_code [lindex $result 0]
+	    set response [lindex $result 1]
+	    return [list $success_code $response $elapsed_ms]
+	    
+	    # puts "Received $result from $command query in [expr [clock clicks -millisec]-$t0] ms"
+	    # return $result
 	}
     }
     return -1
@@ -283,17 +288,19 @@ proc test_initializing_device {} {
 proc test_writing_to_device {} {
     # Test writing to ADU100 0
     global params
-    # RUC100 is the command to read from analog input 0 after
-    # performing a self calibration.
+    info_message "Test writing to device"
+    
+    # CPA1111 is the command to make all digital ports inputs.  There's no response.
+    set command "CPA1111"
 
     # send_command will always return a list of [success_code,
     # elapsed_ms], even when there's an error.
-    set result [send_command 0 "RUC00"]
+    set result [send_command 0 $command]
     set elapsed_ms [lindex $result 1]
     if { [lindex $result 0] == 0 } {
-	pass_message "Wrote 'RUC00' to ADU100 0 in $elapsed_ms ms"
+	pass_message "Wrote '$command' to ADU100 0 in $elapsed_ms ms"
     } else {
-	fail_message "Failed to write to ADU100 0, return value $result"
+	fail_message "Failed to write '$command' to ADU100 0, return value $result"
 	exit
     }
     return
@@ -302,11 +309,16 @@ proc test_writing_to_device {} {
 proc test_reading_from_device {} {
     # Test reading from ADU100 0
     global params
-    # set result [adu100::read_device 0 8 200]
-    set result [read_response 0]
-    # Result should be a list, with the first element indicating success
+    info_message "Test reading from device"
+
+    # RPK0 queries the status of relay K0
+    set command "RPK0"
+    set result [query 0 $command]
+    # query will always return a list of [success_code,
+    # query response, elapsed_ms], even when there's an error.
     if { [lindex $result 0] == 0 } {
-	pass_message "Read [lindex $result 1] from ADU100 0"
+	set elapsed_ms [lindex $result 2]
+	pass_message "Read [lindex $result 1] from ADU100 0 after '$command' query in $elapsed_ms ms"
     } else {
 	fail_message "Failed to read from ADU100 0"
 	exit
