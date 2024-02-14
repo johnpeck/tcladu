@@ -154,19 +154,6 @@ proc send_command { index command } {
     return [list $success_code $elapsed_ms]
 }
 
-proc read_response { index } {
-    set timeout_ms 200
-    set t0 [clock clicks -millisec]
-    foreach trial [iterint 0 100] {
-	set result [adu100::read_device $index 8 200]
-	if {[lindex $result 0] == 0} {
-	    puts "Received $result from adu100::read_device in [expr [clock clicks -millisec]-$t0] ms"
-	    return $result
-	}
-    }
-    return -1
-}
-
 proc query { index command } {
     set timeout_ms 200
     set t0 [clock clicks -millisec]
@@ -179,9 +166,6 @@ proc query { index command } {
 	    set success_code [lindex $result 0]
 	    set response [lindex $result 1]
 	    return [list $success_code $response $elapsed_ms]
-	    
-	    # puts "Received $result from $command query in [expr [clock clicks -millisec]-$t0] ms"
-	    # return $result
 	}
     }
     return -1
@@ -289,7 +273,7 @@ proc test_writing_to_device {} {
     # Test writing to ADU100 0
     global params
     info_message "Test writing to device"
-    
+
     # CPA1111 is the command to make all digital ports inputs.  There's no response.
     set command "CPA1111"
 
@@ -328,6 +312,7 @@ proc test_reading_from_device {} {
 
 proc test_closing_relay {} {
     global params
+    info_message "Test closing relay"
     # SK0 "sets" (closes) relay contact 0, the only relay
     set result [send_command 0 "SK0"]
     set success_code [lindex $result 0]
@@ -341,19 +326,24 @@ proc test_closing_relay {} {
 
     # RPK0 queries the status of relay 0
     set result [query 0 "RPK0"]
-    # set result [send_command 0 "RPK0"]
-    # set result [read_response 0]
+    set success_code [lindex $result 0]
+    set response [lindex $result 1]
+    set elapsed_ms [lindex $result 2]
 
-    if { [lindex $result 0] == 0 && [lindex $result 1] == 1 } {
-	pass_message "Closed relay"
+    if { $success_code == 0 && $response == 1 } {
+	pass_message "'RPK0' query confirms closed (set) relay in $elapsed_ms ms"
     }
 
     # Reset the relay
+    info_message "Openning relay"
     set result [send_command 0 "RK0"]
 
     set result [query 0 "RPK0"]
-    if { [lindex $result 0] == 0 && [lindex $result 1] == 0 } {
-	pass_message "Reset (opened) relay"
+    set success_code [lindex $result 0]
+    set response [lindex $result 1]
+    set elapsed_ms [lindex $result 2]
+    if { $success_code == 0 && $response == 0 } {
+	pass_message "'RPK0' query confirms open (reset) relay in $elapsed_ms ms"
     }
 }
 
