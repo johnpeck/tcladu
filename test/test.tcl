@@ -31,6 +31,7 @@ package require cmdline
 set usage "usage: [file tail $argv0] \[options]"
 set options {
     {v.arg 0.0 "Version to test"}
+    {n.arg "mypackage" "Name of the package"}
 }
 
 # Serial numbers
@@ -189,19 +190,19 @@ proc clear_queue { index } {
 proc test_require {} {
     # Test requiring the package and the package version
     global params
-
+    info_message "Test loading package"
     try {
-	set version [package require adutcl]
+	set version [package require $params(n)]
     } trap {} {message optdict} {
-	fail_message "Failed to load adutcl package"
+	fail_message "Failed to load $params(n) package"
 	indented_message "$message"
 	exit
     }
     if {$version eq $params(v)} {
-	pass_message "Loaded adutcl version $version"
+	pass_message "Loaded $params(n) version $version"
 	return
     } else {
-	fail_message "Failed to load correct adutcl version"
+	fail_message "Failed to load correct $params(n) version"
 	indented_message "Expected $params(v), got $version"
 	exit
     }

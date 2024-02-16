@@ -4,7 +4,7 @@
 
 // Name of this module -- not the namespace prefix.  See the makefile
 // for how to set the namespace.
-%module adutcl
+%module tcladu100
 
 // Provides cstring_bounded_output allowing functions to return C strings to Tcl
 %include cstring.i
@@ -20,14 +20,10 @@
   // has to be in the wrapper section, since it will get called when
   // the module is required.
   int initialize_package();
-
-  // See the comment for cstring_bounded_output for why we omit _read_str when we call this.
-  int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
-
 %}
 
 // See the SWIG documentation for cstring.i. Declaring _read_str here
-// means that we can't send a char* argument to read_from_adu even
+// means that we won't send a char* argument to read_device even
 // though it appears in the prototype.  So we skip that argument, and
 // the function returns the string (as a string) anyway -- along with
 // the normal return value.  The string will be the second element in
@@ -53,7 +49,7 @@
 // Initialize libusb
 int initialize_package();
 
-int read_from_adu( libusb_device_handle * _device_handle, char * _read_str, int _read_str_len, int _timeout );
+
 
 void serial_number( int index, char * _read_str );
 

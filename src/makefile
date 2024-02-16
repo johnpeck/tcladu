@@ -5,6 +5,9 @@ tcl_header_directory = /usr/include/tcl8.6
 # Root of the source filename (no extension)
 rootname = adutcl
 
+# Output shared object (and package) name (no extension)
+package_name = tcladu100
+
 version = 1.0
 
 ########################## Test parameters ###########################
@@ -48,8 +51,8 @@ LFLAGS +=  -Xlinker -rpath /usr/lib/x86_64-linux-gnu
 OBJ = $(rootname).o
 OBJ += $(rootname)_wrap.o
 
-package_dir = ../package/$(rootname)
-package_files = $(rootname).so
+package_dir = ../package/$(package_name)
+package_files = $(package_name).so
 package_files += pkgIndex.tcl
 package_file_paths = $(addprefix $(package_dir)/, $(package_files))
 
@@ -64,7 +67,7 @@ target_text_width = 15
 
 # Default target.
 help:
-	@echo "Makefile for $(rootname)"
+	@echo "Makefile for $(package_name)"
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
           "make" "gccversion" \
           "Show the gcc version"
@@ -99,8 +102,8 @@ wrapper: $(rootname)_wrap.c
 
 objects: $(OBJ)
 
-shared: $(rootname).so
-$(rootname).so: $(OBJ)
+shared: $(package_name).so
+$(package_name).so: $(OBJ)
 	$(CC) -shared $^ -o $@ $(LFLAGS)
 
 %.o: %.c
@@ -112,13 +115,17 @@ $(rootname).so: $(OBJ)
 
 .PHONY: test
 test:
-	tclsh ../test/test.tcl -v $(version) -sn1 $(adu100_sn_1)
+	tclsh ../test/test.tcl -n $(package_name) -v $(version) -sn1 $(adu100_sn_1)
 
 # Display compiler version information.
 gccversion :
 	@$(CC) --version
 
-pkgIndex.tcl: $(rootname).so
+# Create the package script
+package.tcl:
+	@echo "pkg_mkIndex . $(package_name).so" > $@
+
+pkgIndex.tcl: $(package_name).so package.tcl
 	tclsh package.tcl
 
 clean:
@@ -126,4 +133,5 @@ clean:
 	rm -f *.o
 	rm -f *.so
 	rm -f pkgIndex.tcl
+	rm -f package.tcl
 	rm -rf $(package_dir)

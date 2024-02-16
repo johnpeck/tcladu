@@ -1,2 +1,1 @@
-# Create a pkgIndex.tcl file
-pkg_mkIndex . adutcl.so
+pkg_mkIndex . tcladu100.so
