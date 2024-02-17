@@ -9,7 +9,7 @@
 // Debian/Ubuntu using apt-get install libusb-1.0-0-dev
 #include <libusb-1.0/libusb.h>
 
-#include "adutcl.h"
+#include "tcladu.h"
 
 adu100_t adu100s[MAX_DEVICES];
 

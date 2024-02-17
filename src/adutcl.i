@@ -10,7 +10,7 @@
   // Put header files here or function declarations like below
   #include <libusb-1.0/libusb.h>
 
-  #include "adutcl.h"
+  #include "tcladu.h"
 
   // Initialize libusb and anything not device hardware related.  This
   // has to be in the wrapper section, since it will get called when

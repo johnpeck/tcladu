@@ -8,3 +8,9 @@
 
 # Don't version control the todo list
 *.org
+
+# Ignore the generated pkgIndex file
+src/pkgIndex.tcl
+
+# Ignore the output package directory
+package
