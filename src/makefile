@@ -3,7 +3,7 @@
 tcl_header_directory = /usr/include/tcl8.6
 
 # Root of the source filename (no extension)
-rootname = adutcl
+rootname = tcladu
 
 # Output shared object (and package, and SWIG module) name (no extension)
 #
