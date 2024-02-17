@@ -96,6 +96,14 @@ proc colorputs {newline text color} {
 
 }
 
+proc listns {{parentns ::}} {
+    set result [list]
+    foreach ns [namespace children $parentns] {
+        lappend result {*}[listns $ns] $ns
+    }
+    return $result
+}
+
 proc fail_message { message } {
     # Print a fail message
     puts -nonewline "\["
@@ -134,8 +142,8 @@ namespace eval libusb_errors {
 
 proc serial_number_list {} {
     # Return a list of connected serial numbers
-    foreach index [iterint 0 [adu100::discovered_devices]] {
-	lappend serial_number_list [adu100::serial_number $index]
+    foreach index [iterint 0 [tcladu::discovered_devices]] {
+	lappend serial_number_list [tcladu::serial_number $index]
     }
     return $serial_number_list
 }
@@ -149,9 +157,9 @@ proc send_command { index command } {
     set timeout_ms 200
 
     set t0 [clock clicks -millisec]
-    set success_code [adu100::write_device $index $command $timeout_ms]
+    set success_code [tcladu::write_device $index $command $timeout_ms]
     set elapsed_ms [expr [clock clicks -millisec] - $t0]
-    indented_message "Received success code from adu100::write_device sending $command in $elapsed_ms ms"
+    indented_message "Received success code from tcladu::write_device sending $command in $elapsed_ms ms"
     return [list $success_code $elapsed_ms]
 }
 
@@ -161,7 +169,7 @@ proc query { index command } {
     # Assume that send command will work perfectly
     send_command $index $command
     foreach trial [iterint 0 100] {
-	set result [adu100::read_device $index 8 $timeout_ms]
+	set result [tcladu::read_device $index 8 $timeout_ms]
 	if {[lindex $result 0] == 0} {
 	    set elapsed_ms [expr [clock clicks -millisec] - $t0]
 	    set success_code [lindex $result 0]
@@ -177,10 +185,10 @@ proc clear_queue { index } {
     set timeout_ms 10
     set t0 [clock clicks -millisec]
     foreach trial [iterint 0 10] {
-	set result [adu100::read_device 0 8 $timeout_ms]
+	set result [tcladu::read_device 0 8 $timeout_ms]
 	if {[lindex $result 0] == -7} {
 	    # The device has timed out, so the queue is empty
-	    indented_message "Received $result from adu100::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
+	    indented_message "Received $result from tcladu::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
 	    return
 	}
     }
@@ -214,13 +222,14 @@ proc test_discovered_devices {} {
     #
     # This is the last test that expects a potential hardware failure
     global params
+    info_message "Testing device discovery"
     set devices_to_find 0
     foreach sernum [iterint 1 10] {
 	if { $params(sn$sernum) ne "" } {
 	    incr devices_to_find
 	}
     }
-    set discovered_devices [adu100::discovered_devices]
+    set discovered_devices [tcladu::discovered_devices]
     if {$discovered_devices < 0} {
 	fail_message "Discovery failed, error code $discovered_devices"
 	exit
@@ -260,7 +269,7 @@ proc test_serial_numbers {} {
 proc test_initializing_device {} {
     # Test claiming interface 0 on an ADU100
     global params
-    set result [adu100::initialize_device 0]
+    set result [tcladu::initialize_device 0]
     if { $result == 0 } {
 	pass_message "Initialized ADU100 0"
     } else {
@@ -351,6 +360,8 @@ proc test_closing_relay {} {
 ########################## Main entry point ##########################
 
 test_require
+
+listns
 
 test_discovered_devices
 test_serial_numbers

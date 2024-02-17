@@ -1,1 +1,1 @@
-pkg_mkIndex . tcladu100.so
+pkg_mkIndex . tcladu.so

@@ -2,10 +2,6 @@
 
 // SWIG interface definition
 
-// Name of this module -- not the namespace prefix.  See the makefile
-// for how to set the namespace.
-%module tcladu100
-
 // Provides cstring_bounded_output allowing functions to return C strings to Tcl
 %include cstring.i
 

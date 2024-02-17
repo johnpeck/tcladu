@@ -5,8 +5,14 @@ tcl_header_directory = /usr/include/tcl8.6
 # Root of the source filename (no extension)
 rootname = adutcl
 
-# Output shared object (and package) name (no extension)
-package_name = tcladu100
+# Output shared object (and package, and SWIG module) name (no extension)
+#
+# This will also be the namespace exported by the package
+#
+# Naming convention:
+#   1. Can not start with a capital letter
+#   2. Can not start or end with numbers
+package_name = tcladu
 
 version = 1.0
 
@@ -24,7 +30,10 @@ adu100_sn_1 = B02597
 SFLAGS = -tcl
 
 # Provide procedures in a namespace
-SFLAGS += -prefix adu100 -namespace
+SFLAGS += -prefix $(package_name) -namespace
+
+# Specify a module name
+SFLAGS += -module $(package_name)
 
 # C compiler
 CC = gcc
