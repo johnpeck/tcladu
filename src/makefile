@@ -14,7 +14,7 @@ rootname = tcladu
 #   2. Can not start or end with numbers
 package_name = tcladu
 
-version = 1.0
+version = 1.0.0
 
 ########################## Test parameters ###########################
 
@@ -105,6 +105,7 @@ all: shared pkgIndex.tcl $(package_file_paths)
 $(package_dir)/%: %
 	mkdir -p $(package_dir)
 	cp $< $@
+	@echo "** Copied $< package version $(version) to $(package_dir)"
 
 .PHONY: wrapper
 wrapper: $(rootname)_wrap.c
