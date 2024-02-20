@@ -16,6 +16,10 @@ package_name = tcladu
 
 version = 1.0.0
 
+# Archive name
+# {appname}-{version}-{OS}-{architecture}.{extension}
+tgz_name = $(package_name)-$(version)-linux-x64.tar.gz
+
 ########################## Test parameters ###########################
 
 # Serial numbers
@@ -107,6 +111,11 @@ $(package_dir)/%: %
 	cp $< $@
 	@echo "** Copied $< package version $(version) to $(package_dir)"
 
+.PHONY: tgz
+tgz: ../package/$(tgz_name)
+../package/$(tgz_name): $(package_file_paths)
+	cd ../package; tar -czvf $(tgz_name) $(package_name)
+
 .PHONY: wrapper
 wrapper: $(rootname)_wrap.c
 
@@ -145,3 +154,4 @@ clean:
 	rm -f pkgIndex.tcl
 	rm -f package.tcl
 	rm -rf $(package_dir)
+	rm -f ../package/*.tar.gz
