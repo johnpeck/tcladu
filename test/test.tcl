@@ -170,11 +170,21 @@ proc query { index command } {
     send_command $index $command
     foreach trial [iterint 0 100] {
 	set result [tcladu::read_device $index 8 $timeout_ms]
-	if {[lindex $result 0] == 0} {
-	    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-	    set success_code [lindex $result 0]
-	    set response [lindex $result 1]
-	    return [list $success_code $response $elapsed_ms]
+	set success_code [lindex $result 0]
+	switch $success_code {
+	    0 {
+		# Query has succeeded, return the result
+		set elapsed_ms [expr [clock clicks -millisec] - $t0]
+		set success_code [lindex $result 0]
+		set response [lindex $result 1]
+		return [list $success_code $response $elapsed_ms]
+	    }
+	    $libusb_errors::timeout {
+		# Query has timed out, but it's because of a libusb
+		# timeout -- not the device.  We likely just need to
+		# wait longer for the device to respond.
+		continue
+	    }
 	}
     }
     return -1
@@ -357,6 +367,20 @@ proc test_closing_relay {} {
     }
 }
 
+proc test_long_query {} {
+    global params
+    info_message "Test query taking a long time to return"
+    # 'RUC00' requests a calibration of AN0, then asks for the measurement
+    set command "RUC00"
+    set result [query 0 $command]
+    set success_code [lindex $result 0]
+    set response [lindex $result 1]
+    set elapsed_ms [lindex $result 2]
+    if { $success_code == 0 } {
+	pass_message "'$command' query returned $response in $elapsed_ms ms" 
+    }
+}
+
 ########################## Main entry point ##########################
 
 test_require
@@ -375,3 +399,5 @@ test_writing_to_device
 test_reading_from_device
 
 test_closing_relay
+
+test_long_query
