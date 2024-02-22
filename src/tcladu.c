@@ -179,7 +179,8 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   // printf( "Read result: %i, Bytes read: %u\n", result, bytes_read );
 
   if ( result < 0 ) {
-    printf( "Error reading interrupt transfer: %s\n", libusb_error_name( result ) );
+    // This will happen all the time for long tasks -- the request will time out.
+    // printf( "Error reading interrupt transfer: %s\n", libusb_error_name( result ) );
     return result;
   }
 
