@@ -104,7 +104,7 @@ help:
           "Remove generated files"
 
 .PHONY: all
-all: shared pkgIndex.tcl $(package_file_paths)
+all: shared pkgIndex.tcl $(package_file_paths) tgz
 
 $(package_dir)/%: %
 	mkdir -p $(package_dir)

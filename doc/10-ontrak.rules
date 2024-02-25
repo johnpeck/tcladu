@@ -1,0 +1,11 @@
+# Udev rule for the ADU100 (and other Ontrak devices)
+#
+# If you change this, use
+# sudo udevadm control --reload-rules
+# ...to load the new rule.
+
+# Everyone can read and write to the device
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0a07", ATTRS{idProduct}=="0064", MODE="0666"
+
+# Only the owner (root) can read and write to the device
+# SUBSYSTEM=="usb", ATTRS{idVendor}=="0a07", ATTRS{idProduct}=="0064", MODE="0600"
