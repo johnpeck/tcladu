@@ -4,6 +4,28 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
 
 ![ADU100 BW](img/bw_adu100.png)
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [tcladu](#tcladu)
+    - [Demonstration](#demonstration)
+        - [What did we just do?](#what-did-we-just-do)
+            - [Unpacked the TGZ](#unpacked-the-tgz)
+            - [Appended the package to Tcl's `auto_path`](#appended-the-package-to-tcls-auto_path)
+            - [Required the package](#required-the-package)
+            - [Populated the connected device database](#populated-the-connected-device-database)
+            - [Queried the device database for device 0](#queried-the-device-database-for-device-0)
+            - [Sent the command to set/close the ADU100's relay](#sent-the-command-to-setclose-the-adu100s-relay)
+            - [Sent the command to read the relay status](#sent-the-command-to-read-the-relay-status)
+            - [Read from the ADU100](#read-from-the-adu100)
+            - [Sent the command to reset/open the ADU100's relay](#sent-the-command-to-resetopen-the-adu100s-relay)
+            - [Sent the command to check the relay status again](#sent-the-command-to-check-the-relay-status-again)
+            - [Read from the ADU100](#read-from-the-adu100-1)
+    - [Getting started](#getting-started)
+        - [Install libusb-1.0](#install-libusb-10)
+
+<!-- markdown-toc end -->
+
 
 ## Demonstration ##
 
@@ -117,3 +139,16 @@ We'll now expect the hardware to report 0 for the relay status.
 The returned list is now `0 0`, telling us that the command succeeded
 and that the relay is reset/open.
 
+
+
+## Getting started ##
+
+### Install libusb-1.0 ###
+
+We need `libusb-1.0-0` to call the libusb functions in tcladu.  This
+comes from Ubuntu's `libusb-1.0-0` package, and I'm using version
+`2:1.0.25-1ubuntu2` on 2024-Mar-07.
+
+We need `libusb-1.0/libusb.h` to build the package, which comes from
+Ubuntu's `libusb-1.0-0-dev` package.  I have the same version of the
+binary and dev packages.
