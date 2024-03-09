@@ -66,6 +66,7 @@ OBJ += $(rootname)_wrap.o
 
 package_dir = ../package/$(package_name)
 package_files = $(package_name).so
+package_files += $(package_name).tcl
 package_files += pkgIndex.tcl
 package_file_paths = $(addprefix $(package_dir)/, $(package_files))
 
@@ -142,9 +143,9 @@ gccversion :
 
 # Create the package script
 package.tcl:
-	@echo "pkg_mkIndex . $(package_name).so" > $@
+	@echo "pkg_mkIndex -verbose . $(package_name).so $(package_name).tcl" > $@
 
-pkgIndex.tcl: $(package_name).so package.tcl
+pkgIndex.tcl: $(package_name).so $(package_name).tcl package.tcl
 	tclsh package.tcl
 
 clean:

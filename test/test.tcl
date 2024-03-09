@@ -264,7 +264,8 @@ proc test_serial_numbers {} {
 	}
     }
     set index 0
-    set found_number_list [serial_number_list]
+    # set found_number_list [serial_number_list]
+    set found_number_list [tcladu::serial_number_list]
     # Found serial numbers can come in any order
     foreach sernum $expected_number_list {
 	if {[lsearch -exact $found_number_list $sernum] < 0} {
