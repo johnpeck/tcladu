@@ -23,6 +23,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [Read from the ADU100](#read-from-the-adu100-1)
     - [Getting started](#getting-started)
         - [Install libusb-1.0](#install-libusb-10)
+        - [Install a udev rule](#install-a-udev-rule)
 
 <!-- markdown-toc end -->
 
@@ -152,3 +153,37 @@ comes from Ubuntu's `libusb-1.0-0` package, and I'm using version
 We need `libusb-1.0/libusb.h` to build the package, which comes from
 Ubuntu's `libusb-1.0-0-dev` package.  I have the same version of the
 binary and dev packages.
+
+### Install a udev rule ###
+
+You can't communicate with the ADU100 without permission, and
+[udev](https://en.wikipedia.org/wiki/Udev) allows configuring that
+permission when devices are plugged in.  I copy the rule [here](/doc/10-ontrak.rules) to `/usr/lib/udev/rules.d` and then call
+
+```
+sudo udevadm control --reload-rules
+```
+
+...to activate the new rule.  Remember that these rules are only
+applied to new devices, so you'll need to unplug and plug your device
+after reloading the rules.  The rule I've linked is for any Ontrak
+device, and it sets the device mode to `0666`.  You can use
+[a nice permissions calculator](https://nettools.club/chmod_calc) to
+set whatever permissions you need.
+
+You can make sure permissions are working with `lsusb` from `usbutils`.
+
+<pre><code>
+<b>johnpeck@darkstar:~ $</b> lsusb | grep Ontrak
+Bus 001 Device 017: ID 0a07:0064 Ontrak Control Systems Inc. ADU100 Data Acquisition Interface
+</pre></code>
+
+...which means the device is located at `/dev/bus/usb/001/017`.  We can check the permissions with
+
+<pre><code>
+<b>johnpeck@darkstar:~ $</b> ls -al /dev/bus/usb/001/017
+crw-rw-rw- 1 root root 189, 16 Mar  2 05:44 /dev/bus/usb/001/017
+</pre></code>
+
+...showing that our rule is working.
+
