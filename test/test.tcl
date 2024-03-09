@@ -300,7 +300,8 @@ proc test_writing_to_device {} {
 
     # send_command will always return a list of [success_code,
     # elapsed_ms], even when there's an error.
-    set result [send_command 0 $command]
+    # set result [send_command 0 $command]
+    set result [tcladu::send_command 0 $command]
     set elapsed_ms [lindex $result 1]
     if { [lindex $result 0] == 0 } {
 	pass_message "Wrote '$command' to ADU100 0 in $elapsed_ms ms"
