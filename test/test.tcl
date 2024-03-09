@@ -140,34 +140,11 @@ namespace eval libusb_errors {
     variable timeout -7
 }
 
-proc serial_number_list {} {
-    # Return a list of connected serial numbers
-    foreach index [iterint 0 [tcladu::discovered_devices]] {
-	lappend serial_number_list [tcladu::serial_number $index]
-    }
-    return $serial_number_list
-}
-
-proc send_command { index command } {
-    # Send a command and return a list of success code, elapsed time
-    #
-    # Arguments:
-    #   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
-    #   command -- The ASCII command to send
-    set timeout_ms 200
-
-    set t0 [clock clicks -millisec]
-    set success_code [tcladu::write_device $index $command $timeout_ms]
-    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-    indented_message "Received success code from tcladu::write_device sending $command in $elapsed_ms ms"
-    return [list $success_code $elapsed_ms]
-}
-
 proc query { index command } {
     set timeout_ms 200
     set t0 [clock clicks -millisec]
     # Assume that send command will work perfectly
-    send_command $index $command
+    tcladu::send_command $index $command
     foreach trial [iterint 0 100] {
 	set result [tcladu::read_device $index 8 $timeout_ms]
 	set success_code [lindex $result 0]
@@ -336,7 +313,7 @@ proc test_closing_relay {} {
     global params
     info_message "Test closing relay"
     # SK0 "sets" (closes) relay contact 0, the only relay
-    set result [send_command 0 "SK0"]
+    set result [tcladu::send_command 0 "SK0"]
     set success_code [lindex $result 0]
     set elapsed_ms [lindex $result 1]
     if { $success_code == 0 } {
@@ -358,7 +335,7 @@ proc test_closing_relay {} {
 
     # Reset the relay
     info_message "Openning relay"
-    set result [send_command 0 "RK0"]
+    set result [tcladu::send_command 0 "RK0"]
 
     set result [query 0 "RPK0"]
     set success_code [lindex $result 0]
