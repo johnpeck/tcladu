@@ -6,6 +6,12 @@ load ./tcladu.so
 set version [package present tcladu]
 package provide tcladu $version
 
+
+namespace eval libusb_errors {
+    variable timeout -7
+}
+
+
 namespace eval tcladu {
 
     
@@ -29,6 +35,38 @@ namespace eval tcladu {
 	set success_code [tcladu::write_device $index $command $timeout_ms]
 	set elapsed_ms [expr [clock clicks -millisec] - $t0]
 	return [list $success_code $elapsed_ms]
+    }
+
+    proc query { index command } {
+	# Send a command and return a list of response, elapsed time
+	#
+	# Arguments:
+	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+	#   command -- The ASCII command to send
+	set timeout_ms 200
+	set t0 [clock clicks -millisec]
+	# Assume that send command will work perfectly
+	tcladu::send_command $index $command
+	foreach trial [iterint 0 100] {
+	    set result [tcladu::read_device $index 8 $timeout_ms]
+	    set success_code [lindex $result 0]
+	    switch $success_code {
+		0 {
+		    # Query has succeeded, return the result
+		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
+		    set success_code [lindex $result 0]
+		    set response [lindex $result 1]
+		    return [list $success_code $response $elapsed_ms]
+		}
+		$libusb_errors::timeout {
+		    # Query has timed out, but it's because of a libusb
+		    # timeout -- not the device.  We likely just need to
+		    # wait longer for the device to respond.
+		    continue
+		}
+	    }
+	}
+	return -1
     }
 }
 
