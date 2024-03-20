@@ -140,32 +140,6 @@ namespace eval libusb_errors {
     variable timeout -7
 }
 
-proc query { index command } {
-    set timeout_ms 200
-    set t0 [clock clicks -millisec]
-    # Assume that send command will work perfectly
-    tcladu::send_command $index $command
-    foreach trial [iterint 0 100] {
-	set result [tcladu::read_device $index 8 $timeout_ms]
-	set success_code [lindex $result 0]
-	switch $success_code {
-	    0 {
-		# Query has succeeded, return the result
-		set elapsed_ms [expr [clock clicks -millisec] - $t0]
-		set success_code [lindex $result 0]
-		set response [lindex $result 1]
-		return [list $success_code $response $elapsed_ms]
-	    }
-	    $libusb_errors::timeout {
-		# Query has timed out, but it's because of a libusb
-		# timeout -- not the device.  We likely just need to
-		# wait longer for the device to respond.
-		continue
-	    }
-	}
-    }
-    return -1
-}
 
 proc clear_queue { index } {
     info_message "Clearing ADU100 $index output queue"
@@ -296,7 +270,7 @@ proc test_reading_from_device {} {
 
     # RPK0 queries the status of relay K0
     set command "RPK0"
-    set result [query 0 $command]
+    set result [tcladu::query 0 $command]
     # query will always return a list of [success_code,
     # query response, elapsed_ms], even when there's an error.
     if { [lindex $result 0] == 0 } {
@@ -324,7 +298,7 @@ proc test_closing_relay {} {
     }
 
     # RPK0 queries the status of relay 0
-    set result [query 0 "RPK0"]
+    set result [tcladu::query 0 "RPK0"]
     set success_code [lindex $result 0]
     set response [lindex $result 1]
     set elapsed_ms [lindex $result 2]
@@ -337,7 +311,7 @@ proc test_closing_relay {} {
     info_message "Openning relay"
     set result [tcladu::send_command 0 "RK0"]
 
-    set result [query 0 "RPK0"]
+    set result [tcladu::query 0 "RPK0"]
     set success_code [lindex $result 0]
     set response [lindex $result 1]
     set elapsed_ms [lindex $result 2]
@@ -351,7 +325,7 @@ proc test_long_query {} {
     info_message "Test query taking a long time to return"
     # 'RUC00' requests a calibration of AN0, then asks for the measurement
     set command "RUC00"
-    set result [query 0 $command]
+    set result [tcladu::query 0 $command]
     set success_code [lindex $result 0]
     set response [lindex $result 1]
     set elapsed_ms [lindex $result 2]

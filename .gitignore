@@ -9,6 +9,9 @@
 # Don't version control the todo list
 *.org
 
+# Don't version control the supporting directory
+supporting
+
 # Ignore the generated pkgIndex file, and the generated script making it
 src/pkgIndex.tcl
 src/package.tcl
