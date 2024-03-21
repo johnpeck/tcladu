@@ -344,7 +344,7 @@ test_discovered_devices
 test_serial_numbers
 test_initializing_device
 
-clear_queue 0
+tcladu::clear_queue 0
 
 # Reading and writing have to be done in pairs
 test_writing_to_device
