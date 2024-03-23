@@ -77,7 +77,7 @@ package_file_paths = $(addprefix $(package_dir)/, $(package_files))
 installation_directory = $(system_package_directory)/$(package_name)$(version)
 
 usage_text_width = 20
-indent_text_width = 7
+indent_text_width = 15
 target_text_width = 15
 
 # All these printf statements look confusing, but the idea here is to
@@ -107,7 +107,7 @@ help:
           "make" "test" \
           "Test package"
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
-          "make" "install" \
+          "(sudo) make" "install" \
           "Install package into $(installation_directory)"
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
           "make" "clean" \
