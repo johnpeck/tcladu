@@ -25,6 +25,10 @@ tgz_name = $(package_name)-$(version)-linux-x64.tar.gz
 # Serial numbers
 adu100_sn_1 = B02597
 
+####################### Installation settings ########################
+
+# The directory with the rest of your Tcl packages
+system_package_directory = /usr/share/tcltk
 
 ###################### Done with configuration #######################
 
@@ -70,6 +74,8 @@ package_files += $(package_name).tcl
 package_files += pkgIndex.tcl
 package_file_paths = $(addprefix $(package_dir)/, $(package_files))
 
+installation_directory = $(system_package_directory)/$(package_name)$(version)
+
 usage_text_width = 20
 indent_text_width = 7
 target_text_width = 15
@@ -100,6 +106,9 @@ help:
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
           "make" "test" \
           "Test package"
+	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
+          "make" "install" \
+          "Install package into $(installation_directory)"
 	@printf "%$(indent_text_width)s %-$(target_text_width)s %s\n" \
           "make" "clean" \
           "Remove generated files"
@@ -136,6 +145,10 @@ $(package_name).so: $(OBJ)
 .PHONY: test
 test:
 	tclsh ../test/test.tcl -n $(package_name) -v $(version) -sn1 $(adu100_sn_1)
+
+.PHONY: install
+install:
+	cp -R $(package_dir) $(installation_directory)
 
 # Display compiler version information.
 gccversion :
