@@ -169,12 +169,17 @@ proc test_require {} {
     }
     if {$version eq $params(v)} {
 	pass_message "Loaded $params(n) version $version"
+	set action_script [package ifneeded $params(n) $version]
+	foreach line [split $action_script "\n"] {
+	    indented_message $line
+	}
 	return
     } else {
 	fail_message "Failed to load correct $params(n) version"
 	indented_message "Expected $params(v), got $version"
 	exit
     }
+
 
 }
 

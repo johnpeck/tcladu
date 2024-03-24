@@ -147,8 +147,11 @@ test:
 	tclsh ../test/test.tcl -n $(package_name) -v $(version) -sn1 $(adu100_sn_1)
 
 .PHONY: install
+# Use rsync here to avoid problems with cp not overwriting files that
+# already exist.
 install:
-	cp -R $(package_dir) $(installation_directory)
+	mkdir -p $(installation_directory)
+	rsync -av $(package_dir)/ $(installation_directory)
 
 # Display compiler version information.
 gccversion :

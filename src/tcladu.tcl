@@ -2,10 +2,20 @@
 
 # SWIG configures the package name, namespace, and version number.  We
 # need to extract this version number from the package binary.
-load ./tcladu.so
+#
+# dir is a variable set by Tcl's auto loader as it traverses the
+# auto_path.  See
+# Practical Programming in Tcl/Tk by Welch and Jones
+if [info exists dir] {
+    # The auto loader is running
+    load [file join $dir tcladu.so]    
+} else {
+    # pkg_mkIndex is running
+    load ./tcladu.so
+}
+
 set version [package present tcladu]
 package provide tcladu $version
-
 
 namespace eval libusb_errors {
     variable timeout -7
