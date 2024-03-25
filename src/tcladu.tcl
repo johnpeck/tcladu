@@ -1,18 +1,15 @@
 # Hey Emacs, use -*- Tcl -*- mode
 
+set this_file [file normalize [info script]]
+set this_directory [file dirname $this_file]
+
 # SWIG configures the package name, namespace, and version number.  We
 # need to extract this version number from the package binary.
 #
 # dir is a variable set by Tcl's auto loader as it traverses the
 # auto_path.  See
 # Practical Programming in Tcl/Tk by Welch and Jones
-if [info exists dir] {
-    # The auto loader is running
-    load [file join $dir tcladu.so]    
-} else {
-    # pkg_mkIndex is running
-    load ./tcladu.so
-}
+load [file join $this_directory tcladu.so]
 
 set version [package present tcladu]
 package provide tcladu $version
@@ -24,10 +21,22 @@ namespace eval libusb_errors {
 
 namespace eval tcladu {
 
+    proc iterint {start points} {
+	# Return a list of increasing integers starting with start with
+	# length points
+	set count 0
+	set intlist [list]
+	while {$count < $points} {
+	    lappend intlist [expr $start + $count]
+	    incr count
+	}
+	return $intlist
+    }
+
     
     proc serial_number_list {} {
 	# Return a list of connected serial numbers
-	foreach index [iterint 0 [tcladu::discovered_devices]] {
+	foreach index [tcladu::iterint 0 [tcladu::discovered_devices]] {
 	    lappend serial_number_list [tcladu::serial_number $index]
 	}
 	return $serial_number_list
@@ -57,7 +66,7 @@ namespace eval tcladu {
 	set t0 [clock clicks -millisec]
 	# Assume that send command will work perfectly
 	tcladu::send_command $index $command
-	foreach trial [iterint 0 100] {
+	foreach trial [tcladu::iterint 0 100] {
 	    set result [tcladu::read_device $index 8 $timeout_ms]
 	    set success_code [lindex $result 0]
 	    switch $success_code {
@@ -86,7 +95,7 @@ namespace eval tcladu {
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
 	set timeout_ms 10
 	set t0 [clock clicks -millisec]
-	foreach trial [iterint 0 10] {
+	foreach trial [tcladu::iterint 0 10] {
 	    set result [tcladu::read_device 0 8 $timeout_ms]
 	    if {[lindex $result 0] == -7} {
 		# The device has timed out, so the queue is empty

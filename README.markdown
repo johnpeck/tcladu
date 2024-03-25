@@ -24,6 +24,11 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
     - [Getting started](#getting-started)
         - [Install libusb-1.0](#install-libusb-10)
         - [Install a udev rule](#install-a-udev-rule)
+    - [Command reference](#command-reference)
+        - [High level commands](#high-level-commands)
+            - [serial_number_list](#serial_number_list)
+                - [Arguments](#arguments)
+                - [Example](#example)
 
 <!-- markdown-toc end -->
 
@@ -187,3 +192,25 @@ crw-rw-rw- 1 root root 189, 16 Mar  2 05:44 /dev/bus/usb/001/017
 
 ...showing that our rule is working.
 
+## Command reference ##
+
+### High level commands ###
+
+#### serial_number_list ####
+
+Returns a list of connected ADU100 devices.  This calls
+`tcladu::discovered_devices` internally to populate the connected
+device database.
+
+##### Arguments #####
+
+None
+
+##### Example #####
+
+```
+% package require tcladu
+1.1.0
+% tcladu::serial_number_list
+B02597 B02797
+```
