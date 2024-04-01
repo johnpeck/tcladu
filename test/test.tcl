@@ -141,27 +141,14 @@ namespace eval libusb_errors {
 }
 
 
-proc clear_queue { index } {
-    info_message "Clearing ADU100 $index output queue"
-    set timeout_ms 10
-    set t0 [clock clicks -millisec]
-    foreach trial [iterint 0 10] {
-	set result [tcladu::read_device 0 8 $timeout_ms]
-	if {[lindex $result 0] == -7} {
-	    # The device has timed out, so the queue is empty
-	    indented_message "Received $result from tcladu::read_device after clearing queue in [expr [clock clicks -millisec]-$t0] ms"
-	    return
-	}
-    }
 
-}
 
 proc test_require {} {
     # Test requiring the package and the package version
     global params
     info_message "Test loading package"
     try {
-	set version [package require $params(n)]
+	set version [package require -exact $params(n) $params(v)]
     } trap {} {message optdict} {
 	fail_message "Failed to load $params(n) package"
 	indented_message "$message"
@@ -268,6 +255,19 @@ proc test_writing_to_device {} {
     return
 }
 
+proc test_clearing_queue {} {
+    # Test clearing the output queue
+    info_message "Test clearing the queue"
+    set result [tcladu::clear_queue 0]
+    if { [lindex $result 0] == -7 } {
+	pass_message "Cleared ADU100 0 in [lindex $result 1] ms"
+    } else {
+	fail_message "Failed to clear ADU100 0, return value $result"
+	exit
+    }
+    return
+}
+
 proc test_reading_from_device {} {
     # Test reading from ADU100 0
     global params
@@ -349,7 +349,8 @@ test_discovered_devices
 test_serial_numbers
 test_initializing_device
 
-tcladu::clear_queue 0
+test_clearing_queue
+
 
 # Reading and writing have to be done in pairs
 test_writing_to_device

@@ -14,7 +14,7 @@ rootname = tcladu
 #   2. Can not start or end with numbers
 package_name = tcladu
 
-version = 1.1.0
+version = 1.1.1
 
 # Archive name
 # {appname}-{version}-{OS}-{architecture}.{extension}

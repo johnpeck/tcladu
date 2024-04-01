@@ -89,7 +89,8 @@ namespace eval tcladu {
     }
 
     proc clear_queue { index } {
-	# Clear the ADU100's output message queue
+	# Clear the ADU100's output message queue, returning success
+	# code and elapsed time
 	#
 	# Arguments:
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
@@ -97,13 +98,27 @@ namespace eval tcladu {
 	set t0 [clock clicks -millisec]
 	foreach trial [tcladu::iterint 0 10] {
 	    set result [tcladu::read_device 0 8 $timeout_ms]
-	    if {[lindex $result 0] == -7} {
-		# The device has timed out, so the queue is empty
-		return
+	    set success_code [lindex $result 0]
+	    switch $success_code {
+		0 {
+		    # We were able to read something, so the device's
+		    # output queue is not empty.
+		    continue
+		}
+		$libusb_errors::timeout {
+		    # We timed out, so the queue is empty
+		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
+		    return [list $success_code $elapsed_ms]
+		}
+		default {
+		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
+		    return [list $success_code $elapsed_ms]
+		}
 	    }
 	}
-
     }
+
+
 }
 
 
