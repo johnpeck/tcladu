@@ -29,6 +29,9 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments)
                 - [Example](#example)
+            - [send_command](#send_command)
+                - [Arguments](#arguments-1)
+                - [Example](#example-1)
 
 <!-- markdown-toc end -->
 
@@ -214,3 +217,31 @@ None
 % tcladu::serial_number_list
 B02597 B02797
 ```
+
+#### send_command ####
+
+Returns a list of `success code` `execution time` after sending an
+ASCII command.  You must call `serial_number_list` to populate the
+device database before calling `send_command`.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+2. Command
+
+##### Example #####
+
+This sequence shows populating the device database, then setting (closing) the ADU100's relay.
+
+```
+% package require tcladu
+1.1.0
+% tcladu::serial_number_list
+B02597 B02797
+% tcladu::send_command 0 "SK0"
+0 8
+```
+
+The return is `0` (success), followed by `8` -- it took 8ms to get a
+response from the ADU100 (this is not how long it takes to close the
+relay).
