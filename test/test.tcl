@@ -259,7 +259,7 @@ proc test_clearing_queue {} {
     # Test clearing the output queue
     info_message "Test clearing the queue"
     set result [tcladu::clear_queue 0]
-    if { [lindex $result 0] == -7 } {
+    if { [lindex $result 0] == 0 } {
 	pass_message "Cleared ADU100 0 in [lindex $result 1] ms"
     } else {
 	fail_message "Failed to clear ADU100 0, return value $result"

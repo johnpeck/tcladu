@@ -14,6 +14,10 @@ rootname = tcladu
 #   2. Can not start or end with numbers
 package_name = tcladu
 
+# See the package man page for version number requirements:
+# https://www.tcl-lang.org/man/tcl/TclCmd/package.htm
+#
+# Use four digits: major.minor.patch.candidate
 version = 1.1.1
 
 # Archive name

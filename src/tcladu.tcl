@@ -77,7 +77,7 @@ namespace eval tcladu {
 		    set response [lindex $result 1]
 		    return [list $success_code $response $elapsed_ms]
 		}
-		$libusb_errors::timeout {
+		-7 {
 		    # Query has timed out, but it's because of a libusb
 		    # timeout -- not the device.  We likely just need to
 		    # wait longer for the device to respond.
@@ -99,23 +99,25 @@ namespace eval tcladu {
 	foreach trial [tcladu::iterint 0 10] {
 	    set result [tcladu::read_device 0 8 $timeout_ms]
 	    set success_code [lindex $result 0]
+	    # Note that switch statements won't do variable resolution
+	    # -- we need fixed alternatives.
 	    switch $success_code {
 		0 {
 		    # We were able to read something, so the device's
 		    # output queue is not empty.
 		    continue
 		}
-		$libusb_errors::timeout {
-		    # We timed out, so the queue is empty
+		-7 {
+		    # We timed out, so the queue is empty.  Set the
+		    # success code to zero to indicate that the queue
+		    # was clearerd OK.
 		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-		    return [list $success_code $elapsed_ms]
-		}
-		default {
-		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-		    return [list $success_code $elapsed_ms]
+		    return [list 0 $elapsed_ms]
 		}
 	    }
 	}
+	# If we made it here, there's some other error
+	return -code error "Expected libusub timeout error $libusb_errors::timeout, got $success_code"
     }
 
 
