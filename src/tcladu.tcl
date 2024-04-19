@@ -57,7 +57,7 @@ namespace eval tcladu {
     }
 
     proc query { index command } {
-	# Send a command and return a list of response, elapsed time
+	# Send a command and return a list of success code, response, elapsed time
 	#
 	# Arguments:
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)

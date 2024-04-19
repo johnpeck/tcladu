@@ -29,9 +29,12 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments)
                 - [Example](#example)
-            - [send_command](#send_command)
+            - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-1)
                 - [Example](#example-1)
+            - [send_command](#send_command)
+                - [Arguments](#arguments-2)
+                - [Example](#example-2)
 
 <!-- markdown-toc end -->
 
@@ -218,6 +221,30 @@ None
 B02597 B02797
 ```
 
+#### clear_queue ####
+
+Returns a list of `success code` `execution time` after repeatedly
+calling **read_device()** to clear the ADU100's transmit buffer.  This
+prevents confusion from queries returning old data.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+
+##### Example #####
+
+Clear the queue (of the ADU100 at index 0) with
+
+```
+% package require tcladu
+1.1.1
+% tcladu::discovered_devices
+1
+% tcladu::clear_queue 0
+0 12
+```
+...and the return tells us this took 12ms to succeed.
+
 #### send_command ####
 
 Returns a list of `success code` `execution time` after sending an
@@ -245,3 +272,4 @@ B02597 B02797
 The return is `0` (success), followed by `8` -- it took 8ms to get a
 response from the ADU100 (this is not how long it takes to close the
 relay).
+
