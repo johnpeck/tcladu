@@ -35,6 +35,9 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [send_command](#send_command)
                 - [Arguments](#arguments-2)
                 - [Example](#example-2)
+            - [query](#query)
+                - [Arguments](#arguments-3)
+                - [Example](#example-3)
 
 <!-- markdown-toc end -->
 
@@ -273,3 +276,33 @@ The return is `0` (success), followed by `8` -- it took 8ms to get a
 response from the ADU100 (this is not how long it takes to close the
 relay).
 
+#### query ####
+
+Returns a list of `success code` `response` `execution time` after
+sending an ASCII query command.  You must call `serial_number_list` to populate the
+device database before calling `query`.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+2. Command
+
+##### Example #####
+
+This sequence shows querying the (open/reset) relay status, closing
+the relay, then querying again.
+
+```
+% package require tcladu
+1.1.1
+% tcladu::serial_number_list
+B02597
+% tcladu::query 0 RPK0
+0 0 13
+% tcladu::send_command 0 SK0
+0 4
+% tcladu::query 0 RPK0
+0 1 9
+```
+
+The final response of `1` shows that the relay is closed.
