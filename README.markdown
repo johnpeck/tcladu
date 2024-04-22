@@ -39,6 +39,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [query](#query)
                 - [Arguments](#arguments-3)
                 - [Example](#example-3)
+    - [References](#references)
 
 <!-- markdown-toc end -->
 
@@ -208,7 +209,6 @@ example,
 ```
 % puts $auto_path
 /usr/share/tcltk/tcllib1.20 ... /usr/share/tcltk ...
-%
 ```
 
 ...my `auto_path` includes `/usr/share/tcltk`.  When I put **tcladu** in that directory, I can require it with
@@ -229,7 +229,8 @@ source /usr/share/tcltk/tcladu1.1.1/tcladu.tcl
 
 ...showing the path I expected.  This step is more important if you
 build the package yourself, as you might have intermediate builds
-around with the same version number.
+around with the same version number.  See the references below for
+more information about **package ifneeded**.
 
 ## Command reference ##
 
@@ -336,3 +337,7 @@ B02597
 ```
 
 The final response of `1` shows that the relay is closed.
+
+## References ##
+
+1. See [the Tcler's Wiki](https://wiki.tcl-lang.org/page/package+ifneeded) for a description of **package ifneeded**.
