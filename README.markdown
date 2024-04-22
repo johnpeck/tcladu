@@ -24,6 +24,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
     - [Getting started](#getting-started)
         - [Install libusb-1.0](#install-libusb-10)
         - [Install a udev rule](#install-a-udev-rule)
+        - [Requiring the package](#requiring-the-package)
     - [Command reference](#command-reference)
         - [High level commands](#high-level-commands)
             - [serial_number_list](#serial_number_list)
@@ -40,7 +41,6 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
                 - [Example](#example-3)
 
 <!-- markdown-toc end -->
-
 
 ## Demonstration ##
 
@@ -88,7 +88,7 @@ The package is just two files: `pkgIndex.tcl`, used by Tcl's
 
 #### Appended the package to Tcl's `auto_path` ####
 
-The [auto_path](https://wiki.tcl-lang.org/page/auto_path) list tells Tcl where to look for packages. 
+The [auto_path](https://wiki.tcl-lang.org/page/auto_path) list tells Tcl where to look for packages.
 
 #### Required the package ####
 
@@ -154,8 +154,6 @@ We'll now expect the hardware to report 0 for the relay status.
 The returned list is now `0 0`, telling us that the command succeeded
 and that the relay is reset/open.
 
-
-
 ## Getting started ##
 
 ### Install libusb-1.0 ###
@@ -200,6 +198,38 @@ crw-rw-rw- 1 root root 189, 16 Mar  2 05:44 /dev/bus/usb/001/017
 </pre></code>
 
 ...showing that our rule is working.
+
+### Requiring the package ###
+
+Place the package somewhere the Tcl auto loader can find it.  I like
+`usr/share/tcltk`.  This path must be in the `auto_path` list.  For
+example,
+
+```
+% puts $auto_path
+/usr/share/tcltk/tcllib1.20 ... /usr/share/tcltk ...
+%
+```
+
+...my `auto_path` includes `/usr/share/tcltk`.  When I put **tcladu** in that directory, I can require it with
+
+```
+% package require tcladu
+1.1.1
+```
+
+...where the command returns the loaded version.  I can then make sure
+the package got loaded from the right place with
+
+```
+% package ifneeded tcladu 1.1.1
+load /usr/share/tcltk/tcladu1.1.1/tcladu.so
+source /usr/share/tcltk/tcladu1.1.1/tcladu.tcl
+```
+
+...showing the path I expected.  This step is more important if you
+build the package yourself, as you might have intermediate builds
+around with the same version number.
 
 ## Command reference ##
 
