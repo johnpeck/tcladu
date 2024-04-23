@@ -328,12 +328,14 @@ the relay, then querying again.
 1.1.1
 % tcladu::serial_number_list
 B02597
+% tcladu::clear_queue 0
+0 13
 % tcladu::query 0 RPK0
-0 0 13
+0 0 10
 % tcladu::send_command 0 SK0
-0 4
+0 5
 % tcladu::query 0 RPK0
-0 1 9
+0 1 14
 ```
 
 The final response of `1` shows that the relay is closed.
