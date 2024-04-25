@@ -26,19 +26,23 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
         - [Install a udev rule](#install-a-udev-rule)
         - [Requiring the package](#requiring-the-package)
     - [Command reference](#command-reference)
-        - [High level commands](#high-level-commands)
-            - [serial_number_list](#serial_number_list)
+        - [Low level commands](#low-level-commands)
+            - [discovered_devices](#discovered_devices)
                 - [Arguments](#arguments)
                 - [Example](#example)
-            - [clear_queue](#clear_queue)
+        - [High level commands](#high-level-commands)
+            - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-1)
                 - [Example](#example-1)
-            - [send_command](#send_command)
+            - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-2)
                 - [Example](#example-2)
-            - [query](#query)
+            - [send_command](#send_command)
                 - [Arguments](#arguments-3)
                 - [Example](#example-3)
+            - [query](#query)
+                - [Arguments](#arguments-4)
+                - [Example](#example-4)
     - [References](#references)
 
 <!-- markdown-toc end -->
@@ -233,6 +237,44 @@ around with the same version number.  See the references below for
 more information about **package ifneeded**.
 
 ## Command reference ##
+
+### Low level commands ###
+
+These are commands implemented in `tcladu.c` and broken out via
+**SWIG**.
+
+#### discovered_devices ####
+
+This command returns the number of ADU100 devices discovered on USB.  The key line is
+
+```
+if ( desc.idVendor == 0x0a07 && desc.idProduct == 0x0064 ) {
+```
+
+...showing how
+[USB descriptors](https://developerhelp.microchip.com/xwiki/bin/view/applications/usb/how-it-works/descriptors/)
+are used to discover ADU100s.  This command also populates the device
+database -- required for using numbers like the device index in other
+commands.
+
+The return will be `-1` if there's a problem.
+
+##### Arguments #####
+
+None
+
+##### Example #####
+
+We can get the number of connected ADU100s and populate the internal database with
+
+```
+% package require tcladu
+1.1.1
+% tcladu::discovered_devices
+1
+```
+
+...where **tcladu** correctly found 1 connected ADU100.
 
 ### High level commands ###
 
