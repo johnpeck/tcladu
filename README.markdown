@@ -30,19 +30,23 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [discovered_devices](#discovered_devices)
                 - [Arguments](#arguments)
                 - [Example](#example)
+            - [initialize_device](#initialize_device)
+                - [Arguments](#arguments-1)
+                - [Returns](#returns)
+                - [Example](#example-1)
         - [High level commands](#high-level-commands)
             - [serial_number_list](#serial_number_list)
-                - [Arguments](#arguments-1)
-                - [Example](#example-1)
-            - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-2)
                 - [Example](#example-2)
-            - [send_command](#send_command)
+            - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-3)
                 - [Example](#example-3)
-            - [query](#query)
+            - [send_command](#send_command)
                 - [Arguments](#arguments-4)
                 - [Example](#example-4)
+            - [query](#query)
+                - [Arguments](#arguments-5)
+                - [Example](#example-5)
     - [References](#references)
 
 <!-- markdown-toc end -->
@@ -276,6 +280,37 @@ We can get the number of connected ADU100s and populate the internal database wi
 
 ...where **tcladu** correctly found 1 connected ADU100.
 
+#### initialize_device ####
+
+This command is more about initializing the USB interface than it is
+about initializing the ADU100 hardware.  But it acts on one device
+instead of some broader initialization.  It does two things:
+1. Enable libusb's [automatic kernel driver detachment](https://libusb.sourceforge.io/api-1.0/group__libusb__dev.html#gac35b26fef01271eba65c60b2b3ce1cbf) for the chosen ADU100.
+2. Claim interface number 0 for the chosen ADU100.  See the [libusb documentation](https://libusb.sourceforge.io/api-1.0/group__libusb__dev.html#gaee5076addf5de77c7962138397fd5b1a).
+
+The device database must be populated with
+`tcladu::serial_number_list` or `tcladu::discovered_devices` before
+calling this function.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+
+##### Returns #####
+
+* 0 on success
+
+##### Example #####
+
+```
+% package require tcladu
+1.1.1
+% tcladu::serial_number_list
+B02797
+% tcladu::initialize_device 0
+0
+```
+
 ### High level commands ###
 
 #### serial_number_list ####
@@ -385,3 +420,6 @@ The final response of `1` shows that the relay is closed.
 ## References ##
 
 1. See [the Tcler's Wiki](https://wiki.tcl-lang.org/page/package+ifneeded) for a description of **package ifneeded**.
+2. See
+   [the libusb 1.0 API documentation](https://libusb.sourceforge.io/api-1.0/libusb_api.html)
+   for better descriptions of the low-level commands.
