@@ -349,12 +349,17 @@ Clear the queue (of the ADU100 at index 0) with
 ```
 % package require tcladu
 1.1.1
-% tcladu::discovered_devices
-1
+% tcladu::serial_number_list
+B02597
+% tcladu::initialize_device 0
+0
 % tcladu::clear_queue 0
 0 12
 ```
-...and the return tells us this took 12ms to succeed.
+
+...and the return tells us this took 12ms to succeed.  We need to call
+`initialize_device` here because `clear_queue` sends commands to the
+device.
 
 #### send_command ####
 
