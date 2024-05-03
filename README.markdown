@@ -37,6 +37,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
         - [High level commands](#high-level-commands)
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-2)
+                - [Returns](#returns-1)
                 - [Example](#example-2)
             - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-3)
@@ -323,6 +324,11 @@ device database.
 
 None
 
+##### Returns #####
+
+A list of discovered ADU100 devices.  This list will be empty if no
+devices are discovered.
+
 ##### Example #####
 
 ```
@@ -381,6 +387,8 @@ This sequence shows populating the device database, then setting (closing) the A
 1.1.0
 % tcladu::serial_number_list
 B02597 B02797
+% tcladu::initialize_device 0
+0
 % tcladu::send_command 0 "SK0"
 0 8
 ```
