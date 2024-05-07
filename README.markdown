@@ -29,15 +29,16 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
         - [Low level commands](#low-level-commands)
             - [discovered_devices](#discovered_devices)
                 - [Arguments](#arguments)
+                - [Returns](#returns)
                 - [Example](#example)
             - [initialize_device](#initialize_device)
                 - [Arguments](#arguments-1)
-                - [Returns](#returns)
+                - [Returns](#returns-1)
                 - [Example](#example-1)
         - [High level commands](#high-level-commands)
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-2)
-                - [Returns](#returns-1)
+                - [Returns](#returns-2)
                 - [Example](#example-2)
             - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-3)
@@ -262,11 +263,14 @@ are used to discover ADU100s.  This command also populates the device
 database -- required for using numbers like the device index in other
 commands.
 
-The return will be `-1` if there's a problem.
-
 ##### Arguments #####
 
 None
+
+##### Returns #####
+
+* 0 to the number of discovered ADU100 devices if successful
+* -1 if there was an error during discovery
 
 ##### Example #####
 
