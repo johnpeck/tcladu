@@ -19,6 +19,8 @@ namespace eval libusb_errors {
 }
 
 
+
+
 namespace eval tcladu {
 
     proc iterint {start points} {
@@ -33,6 +35,57 @@ namespace eval tcladu {
 	return $intlist
     }
 
+    proc libusb_error_string { error_code } {
+	# Return a string representation of the libusb error
+	#
+	# Arguments:
+	#   error_code -- The integer return from a libusb function
+	switch $error_code {
+	    0 {
+		return "libusb success"
+	    }
+	    -1 {
+		return "libusb I/O error"
+	    }
+	    -2 {
+		return "libusb error: invalid parameter"
+	    }
+	    -3 {
+		return "libusb error: access"
+	    }
+	    -4 {
+		return "libusb error: no device"
+	    }
+	    -5 {
+		return "libusb error: not found"
+	    }
+	    -6 {
+		return "libusb error: busy"
+	    }
+	    -7 {
+		return "libusb error: timeout"
+	    }
+	    -8 {
+		return "libusb error: overflow"
+	    }
+	    -9 {
+		return "libusb error: pipe"
+	    }
+	    -10 {
+		return "libusb error: interrupted"
+	    }
+	    -11 {
+		return "libusb error: no memory"
+	    }
+	    -12 {
+		return "libusb error: not supported"
+	    }
+	    -99 {
+		return "libusb error: other"
+	    }
+	}
+    }
+
     
     proc serial_number_list {} {
 	# Return a list of connected serial numbers
@@ -41,6 +94,19 @@ namespace eval tcladu {
 	    lappend serial_number_list [tcladu::serial_number $index]
 	}
 	return $serial_number_list
+    }
+
+    proc initialize_device { index } {
+	# Calls the low-level initialize_device, throwing an error if necessary
+	#
+	# Arguments:
+	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+	set retval [tcladu::_initialize_device $index]
+	if { $retval < 0 } {
+	    error [tcladu::libusb_error_string $retval] 
+	}
+	# If we made it here, everything was fine
+	return 0
     }
 
     proc send_command { index command } {

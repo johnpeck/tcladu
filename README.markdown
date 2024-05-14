@@ -42,6 +42,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
                 - [Example](#example-2)
             - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-3)
+                - [Returns](#returns-3)
                 - [Example](#example-3)
             - [send_command](#send_command)
                 - [Arguments](#arguments-4)
@@ -351,6 +352,14 @@ prevents confusion from queries returning old data.
 ##### Arguments #####
 
 1. Device index (0, 1, ..., connected ADU100s -1)
+
+##### Returns #####
+
+* On success, a list of
+1. 0 to indicate success
+2. Elapsed time needed to clear the queue
+
+* On failure, a [Tcl error](https://www.tcl-lang.org/man/tcl/TclCmd/error.htm)
 
 ##### Example #####
 

@@ -55,7 +55,7 @@ libusb_device_handle *handle( int index );
 
 // Claim interface 0 on the device, and enable auto-detaching of the
 // kernel driver from the interface.
-int initialize_device( int index );
+int _initialize_device( int index );
 
 int write_device( int index, const char *command, int timeout_ms);
 

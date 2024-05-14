@@ -91,7 +91,7 @@ libusb_device_handle *handle( int index ) {
   return adu100s[index].devh;
 }
 
-int initialize_device( int index ) {
+int _initialize_device( int index ) {
   int retval = 0;
   libusb_device_handle *device_handle = handle( index );
 

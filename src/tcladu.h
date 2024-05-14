@@ -51,7 +51,7 @@ libusb_device_handle *handle( int index );
 // Arguments:
 //
 //   index -- 0 to (connected ADU100s -1)
-int initialize_device( int index );
+int _initialize_device( int index );
 
 // Write a command to an ADU100
 //
