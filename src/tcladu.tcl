@@ -35,6 +35,20 @@ namespace eval tcladu {
 	return $intlist
     }
 
+    proc force_integer { raw_integer } {
+	# Returns integers with leading zeros stripped off.
+	# https://stackoverflow.com/questions/2110864/handling-numbers-with-leading-zeros-in-tcl
+	# Arguments:
+	#
+	#   raw_integer -- Integer input maybe with leading zeros
+	set count [scan $raw_integer %d%s clean_integer rest]
+	if { $count <= 0 || ( $count == 2 && ![string is space $rest] ) } {
+	    return -code error "not an integer: \"$x\""
+	}
+	return $clean_integer
+    }
+
+
     proc libusb_error_string { error_code } {
 	# Return a string representation of the libusb error
 	#
@@ -141,8 +155,10 @@ namespace eval tcladu {
 		    # Query has succeeded, return the result
 		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
 		    set success_code [lindex $result 0]
-		    set response [lindex $result 1]
-		    return [list $success_code $response $elapsed_ms]
+		    set raw_response [lindex $result 1]
+		    # Strip leading zeros
+		    set clean_response [force_integer $raw_response]
+		    return [list $success_code $clean_response $elapsed_ms]
 		}
 		-7 {
 		    # Query has timed out, but it's because of a libusb
