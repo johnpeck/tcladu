@@ -31,24 +31,28 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
                 - [Arguments](#arguments)
                 - [Returns](#returns)
                 - [Example](#example)
-            - [initialize_device](#initialize_device)
+            - [_initialize_device](#_initialize_device)
                 - [Arguments](#arguments-1)
                 - [Returns](#returns-1)
                 - [Example](#example-1)
         - [High level commands](#high-level-commands)
-            - [serial_number_list](#serial_number_list)
+            - [initialize_device](#initialize_device)
                 - [Arguments](#arguments-2)
                 - [Returns](#returns-2)
-                - [Example](#example-2)
-            - [clear_queue](#clear_queue)
+            - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-3)
                 - [Returns](#returns-3)
+                - [Example](#example-2)
+            - [clear_queue](#clear_queue)
+                - [Arguments](#arguments-4)
+                - [Returns](#returns-4)
                 - [Example](#example-3)
             - [send_command](#send_command)
-                - [Arguments](#arguments-4)
+                - [Arguments](#arguments-5)
+                - [Returns](#returns-5)
                 - [Example](#example-4)
             - [query](#query)
-                - [Arguments](#arguments-5)
+                - [Arguments](#arguments-6)
                 - [Example](#example-5)
     - [References](#references)
 
@@ -286,7 +290,7 @@ We can get the number of connected ADU100s and populate the internal database wi
 
 ...where **tcladu** correctly found 1 connected ADU100.
 
-#### initialize_device ####
+#### _initialize_device ####
 
 This command is more about initializing the USB interface than it is
 about initializing the ADU100 hardware.  But it acts on one device
@@ -305,6 +309,7 @@ calling this function.
 ##### Returns #####
 
 * 0 on success
+* [libusb error code](https://libusb.sourceforge.io/api-1.0/group__libusb__misc.html#gab2323aa0f04bc22038e7e1740b2f29ef) on error
 
 ##### Example #####
 
@@ -318,6 +323,20 @@ B02797
 ```
 
 ### High level commands ###
+
+#### initialize_device ####
+
+This command calls the low-level [_initialize_device](#_initialize_device), allowing
+libusb errors to throw Tcl errors.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+
+##### Returns #####
+
+* 0 on success
+* [Tcl error](https://www.tcl.tk/man/tcl/TclCmd/error.htm) on error
 
 #### serial_number_list ####
 
@@ -390,6 +409,12 @@ device database before calling `send_command`.
 
 1. Device index (0, 1, ..., connected ADU100s -1)
 2. Command
+
+##### Returns #####
+
+* On success, a list of
+1. 0 to indicate success
+2. Elapsed time needed to send the command (not to process the command)
 
 ##### Example #####
 

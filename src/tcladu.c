@@ -108,7 +108,7 @@ int _initialize_device( int index ) {
   retval = libusb_claim_interface( device_handle, 0 );
 
   if ( retval < 0 ) {
-    printf( "Error claiming interface: %s\n", libusb_error_name( retval ) );
+    // printf( "Error claiming interface: %s\n", libusb_error_name( retval ) );
   }
 
   return retval;
