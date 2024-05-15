@@ -173,7 +173,9 @@ int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms 
   libusb_device_handle *device_handle = handle( index );
 
   // Buffer to hold the command we will receive from the ADU device
-  // Its size is set to the transfer size for low or full speed USB devices (ADU model specific - see defines at top of file)
+  //
+  // Its size is set to the transfer size for low or full speed USB
+  // devices (ADU model specific - see defines at top of file)
   unsigned char buffer[ TRANSFER_SIZE ];
 
   // Zero out buffer to pad with null values (command buffer needs
