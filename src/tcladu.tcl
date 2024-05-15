@@ -123,6 +123,23 @@ namespace eval tcladu {
 	return 0
     }
 
+    proc write_device { index command timeout_ms } {
+	# Calls the low-level write_device, throwing an error if necessary
+	#
+	# Arguments:
+	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+	#   command -- ASCII command to write
+	#   timeout_ms -- How long libusb should wait for an acknowledgement (ms)
+	set retval [tcladu::_write_device $index $command $timeout_ms]
+	if { $retval == -20 } {
+	    error "write_device: command $command is too large for transfer buffer"
+	} elseif { $retval < 0 } {
+	    error [tcladu::libusb_error_string $retval]
+	}
+	# If we made it here, everything was fine
+	return 0
+    } 
+
     proc send_command { index command } {
 	# Send a command and return a list of success code, elapsed time
 	#

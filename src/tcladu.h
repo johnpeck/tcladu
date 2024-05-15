@@ -60,7 +60,7 @@ int _initialize_device( int index );
 //   index -- 0 to (connected ADU100s -1)
 //   command -- command to send
 //   timeout_ms -- timeout passed to libusb_interrupt_transfer (ms)
-int write_device( int index, const char *command, int timeout_ms);
+int _write_device( int index, const char *command, int timeout_ms);
 
 // Read from an ADU100
 //

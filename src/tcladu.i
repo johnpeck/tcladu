@@ -57,7 +57,8 @@ libusb_device_handle *handle( int index );
 // kernel driver from the interface.
 int _initialize_device( int index );
 
-int write_device( int index, const char *command, int timeout_ms);
+// Write a command to the ADU100
+int _write_device( int index, const char *command, int timeout_ms);
 
 // Read from an ADU100
 //

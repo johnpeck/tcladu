@@ -114,7 +114,14 @@ int _initialize_device( int index ) {
   return retval;
 }
 
-int write_device( int index, const char *command, int timeout_ms) {
+int _write_device( int index, const char *command, int timeout_ms ) {
+  // Write a command to an ADU100
+  //
+  // Arguments:
+  //   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+  //   command -- ASCII command to write
+  //   timeout_ms -- How long libusb should wait for an acknowledgement (ms)
+
   // Get the length of the command string we are sending
   const int command_length = strlen( command );
 
@@ -129,8 +136,8 @@ int write_device( int index, const char *command, int timeout_ms) {
   unsigned char buffer[ TRANSFER_SIZE ];
 
   if ( command_length > TRANSFER_SIZE ) {
-    printf( "Error: command is larger than our limit of %i\n", TRANSFER_SIZE );
-    return -1;
+    // printf( "Error: command is larger than our limit of %i\n", TRANSFER_SIZE );
+    return -20;
   }
 
   // Zero out buffer to pad with null values (command buffer needs to
@@ -151,7 +158,7 @@ int write_device( int index, const char *command, int timeout_ms) {
   // printf( "Write '%s' result: %i, Bytes sent: %u\n", command, result, bytes_sent );
 
   if ( result < 0 ) {
-    printf( "Error sending interrupt transfer: %s\n", libusb_error_name( result ) );
+    // printf( "Error sending interrupt transfer: %s\n", libusb_error_name( result ) );
   }
 
   // Returns 0 on success, a negative number specifying the libusb error otherwise
