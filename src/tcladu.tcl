@@ -49,8 +49,9 @@ namespace eval tcladu {
     }
 
 
-    proc libusb_error_string { error_code } {
-	# Return a string representation of the libusb error
+    proc error_string { error_code } {
+	# Return a string representation of the integer error returned
+	# by a low-level function.
 	#
 	# Arguments:
 	#   error_code -- The integer return from a libusb function
@@ -94,6 +95,9 @@ namespace eval tcladu {
 	    -12 {
 		return "libusb error: not supported"
 	    }
+	    -20 {
+		return "write_device: command too large for transfer buffer"
+	    }
 	    -99 {
 		return "libusb error: other"
 	    }
@@ -117,7 +121,7 @@ namespace eval tcladu {
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
 	set retval [tcladu::_initialize_device $index]
 	if { $retval < 0 } {
-	    error [tcladu::libusb_error_string $retval] 
+	    error [tcladu::error_string $retval] 
 	}
 	# If we made it here, everything was fine
 	return 0
@@ -134,11 +138,15 @@ namespace eval tcladu {
 	if { $retval == -20 } {
 	    error "write_device: command $command is too large for transfer buffer"
 	} elseif { $retval < 0 } {
-	    error [tcladu::libusb_error_string $retval]
+	    error [tcladu::error_string $retval]
 	}
 	# If we made it here, everything was fine
 	return 0
-    } 
+    }
+
+    # proc read_device { index chars timeout_ms } {
+    # 	
+    # }
 
     proc send_command { index command } {
 	# Send a command and return a list of success code, elapsed time

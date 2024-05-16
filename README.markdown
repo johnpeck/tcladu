@@ -39,21 +39,22 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [initialize_device](#initialize_device)
                 - [Arguments](#arguments-2)
                 - [Returns](#returns-2)
+                - [Example](#example-2)
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-3)
                 - [Returns](#returns-3)
-                - [Example](#example-2)
+                - [Example](#example-3)
             - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-4)
                 - [Returns](#returns-4)
-                - [Example](#example-3)
+                - [Example](#example-4)
             - [send_command](#send_command)
                 - [Arguments](#arguments-5)
                 - [Returns](#returns-5)
-                - [Example](#example-4)
+                - [Example](#example-5)
             - [query](#query)
                 - [Arguments](#arguments-6)
-                - [Example](#example-5)
+                - [Example](#example-6)
     - [References](#references)
 
 <!-- markdown-toc end -->
@@ -315,10 +316,10 @@ calling this function.
 
 ```
 % package require tcladu
-1.1.1
+1.1.3
 % tcladu::serial_number_list
 B02797
-% tcladu::initialize_device 0
+% tcladu::_initialize_device 0
 0
 ```
 
@@ -337,6 +338,19 @@ libusb errors to throw Tcl errors.
 
 * 0 on success
 * [Tcl error](https://www.tcl.tk/man/tcl/TclCmd/error.htm) on error
+
+##### Example #####
+
+The high-level `initialize_device` and low-level `_initialize_device` have the same usage.
+
+```
+% package require tcladu
+1.1.3
+% tcladu::serial_number_list
+B02797
+% tcladu::initialize_device 0
+0
+```
 
 #### serial_number_list ####
 
