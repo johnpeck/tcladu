@@ -165,9 +165,9 @@ int _write_device( int index, const char *command, int timeout_ms ) {
   return result;
 }
 
-int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms ) {
+int _read_device( int index, char * _read_str, int chars_to_read, int timeout_ms ) {
   if ( _read_str == NULL || chars_to_read < 8 ) {
-    return -2;
+    return -21;
   }
 
   libusb_device_handle *device_handle = handle( index );

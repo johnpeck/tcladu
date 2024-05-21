@@ -49,59 +49,80 @@ namespace eval tcladu {
     }
 
 
-    proc error_string { error_code } {
-	# Return a string representation of the integer error returned
-	# by a low-level function.
+    proc error_decode { error_code } {
+	# Return a dictionary of error parameters based on the integer
+	# returned by the low-level functions.
 	#
 	# Arguments:
-	#   error_code -- The integer return from a libusb function
+	#   error_code -- The integer error return from a low-level function
+	set error_dict [dict create]
 	switch $error_code {
 	    0 {
-		return "libusb success"
+		dict set error_dict code "LIBUSB_SUCCESS"
+		dict set error_dict message "Success"
 	    }
 	    -1 {
-		return "libusb I/O error"
+		dict set error_dict code "LIBUSB_ERROR_IO"
+		dict set error_dict message "libusb I/O error"
 	    }
 	    -2 {
-		return "libusb error: invalid parameter"
+		dict set error_dict code "LIBUSB_ERROR_INVALID_PARAM"
+		dict set error_dict message "libusb error: invalid parameter"
 	    }
 	    -3 {
-		return "libusb error: access"
+		dict set error_dict code "LIBUSB_ERROR_ACCESS"
+		dict set error_dict message "libusb error: access denied (insufficient permissions)"
 	    }
 	    -4 {
-		return "libusb error: no device"
+		dict set error_dict code "LIBUSB_ERROR_NO_DEVICE"
+		dict set error_dict message "libusb error: no such device -- it might have been disconnected"
 	    }
 	    -5 {
-		return "libusb error: not found"
+		dict set error_dict code "LIBUSB_ERROR_NOT_FOUND"
+		dict set error_dict message "libusb error: not found"
 	    }
 	    -6 {
-		return "libusb error: busy"
+		dict set error_dict code "LIBUSB_ERROR_BUSY"
+		dict set error_dict message "libusb error: busy"
 	    }
 	    -7 {
-		return "libusb error: timeout"
+		dict set error_dict code "LIBUSB_ERROR_TIMEOUT"
+		dict set error_dict message "libusb error: operation timed out"
 	    }
 	    -8 {
-		return "libusb error: overflow"
+		dict set error_dict code "LIBUSB_ERROR_OVERFLOW"
+		dict set error_dict message "libusb error: overflow"
 	    }
 	    -9 {
-		return "libusb error: pipe"
+		dict set error_dict code "LIBUSB_ERROR_PIPE"
+		dict set error_dict message "libusb error: pipe"
 	    }
 	    -10 {
-		return "libusb error: interrupted"
+		dict set error_dict code "LIBUSB_ERROR_INTERRUPTED"
+		dict set error_dict message "libusb error: system call interrupted"
 	    }
 	    -11 {
-		return "libusb error: no memory"
+		dict set error_dict code "LIBUSB_ERROR_NO_MEM"
+		dict set error_dict message "libusb error: insufficient memory"
 	    }
 	    -12 {
-		return "libusb error: not supported"
+		dict set error_dict code "LIBUSB_ERROR_NOT_SUPPORTED"
+		dict set error_dict message "libusb error: operation not supported or unimplemented on this platform"
 	    }
 	    -20 {
-		return "write_device: command too large for transfer buffer"
+		dict set error_dict code "ADU100_COMMAND_SIZE"
+		dict set error_dict message "Command too large for USB transfer buffer"
+	    }
+	    -21 {
+		dict set error_dict code "ADU100_READ_SIZE"
+		dict set error_dict message "read_device: can't read less than 8 characters"
 	    }
 	    -99 {
-		return "libusb error: other"
+		dict set error_dict code "LIBUSB_ERROR_OTHER"
+		dict set error_dict message "libusb error: other"
 	    }
 	}
+	return $error_dict
     }
 
     
@@ -144,9 +165,30 @@ namespace eval tcladu {
 	return 0
     }
 
-    # proc read_device { index chars timeout_ms } {
-    # 	
-    # }
+    proc read_device { index chars timeout_ms } {
+	# Calls the low-level read_device, throwing an error if necessary
+	#
+	# Arguments:
+	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
+	#   chars -- How many characters (must be more than 8) to read
+	#   timeout_ms -- How long libusb should wait for the expected characters (ms)
+	set retval [tcladu::_read_device $index $chars $timeout_ms]
+	# The low-level _read_device will return a list even if the
+	# read fails.
+	set success_code [lindex $retval 0]
+	if { $success_code == -21 } {
+	    error "read_device: $chars characters is less than the minimum 8"
+	} elseif { $success_code < 0 } {
+	    set error_dict [tcladu::error_string $success_code]
+	    set message [dict get $error_dict message]
+	    set code [dict get $error_dict code]
+	    throw $code $message
+	}
+	# If we made it here, the return will be a list of
+	# 1 -- 0 (success)
+	# 2 -- the characters read from the device
+	return $retval
+    }
 
     proc send_command { index command } {
 	# Send a command and return a list of success code, elapsed time
@@ -205,30 +247,21 @@ namespace eval tcladu {
 	set timeout_ms 10
 	set t0 [clock clicks -millisec]
 	foreach trial [tcladu::iterint 0 10] {
-	    set result [tcladu::read_device 0 8 $timeout_ms]
-	    set success_code [lindex $result 0]
-	    # Note that switch statements won't do variable resolution
-	    # -- we need fixed alternatives.
-	    switch $success_code {
-		0 {
-		    # We were able to read something, so the device's
-		    # output queue is not empty.
-		    continue
-		}
-		-7 {
-		    # We timed out, so the queue is empty.  Set the
-		    # success code to zero to indicate that the queue
-		    # was clearerd OK.
-		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-		    return [list 0 $elapsed_ms]
-		}
+	    try {
+		set result [tcladu::read_device 0 8 $timeout_ms]		
+	    } trap {LIBUSB_ERROR_TIMEOUT} {message optdict} {
+		# We timed out, so the queue is empty.  Set the
+		# success code to zero to indicate that the queue was
+		# clearerd OK.
+		set elapsed_ms [expr [clock clicks -millisec] - $t0]
+		return [list 0 $elapsed_ms]
+	    } trap {} {message optdict} {
+		# We can't clear the Tx queue
+		puts "Unable to clear the transmit buffer.  Message is: $message"
+		exit
 	    }
 	}
-	# If we made it here, there's some other error
-	return -code error "Expected libusub timeout error $libusb_errors::timeout, got $success_code"
     }
-
-
 }
 
 

@@ -63,4 +63,4 @@ int _write_device( int index, const char *command, int timeout_ms);
 // Read from an ADU100
 //
 // Returns a Tcl list: {success integer, string read from ADU100}
-int read_device( int index, char * _read_str, int chars_to_read, int timeout_ms );
+int _read_device( int index, char * _read_str, int chars_to_read, int timeout_ms );
