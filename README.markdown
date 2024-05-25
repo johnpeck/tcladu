@@ -35,25 +35,29 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
                 - [Arguments](#arguments-1)
                 - [Returns](#returns-1)
                 - [Example](#example-1)
-        - [High level commands](#high-level-commands)
-            - [initialize_device](#initialize_device)
+            - [_read_device](#_read_device)
                 - [Arguments](#arguments-2)
                 - [Returns](#returns-2)
-                - [Example](#example-2)
-            - [serial_number_list](#serial_number_list)
+        - [High level commands](#high-level-commands)
+            - [initialize_device](#initialize_device)
                 - [Arguments](#arguments-3)
                 - [Returns](#returns-3)
-                - [Example](#example-3)
-            - [clear_queue](#clear_queue)
+                - [Example](#example-2)
+            - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-4)
                 - [Returns](#returns-4)
-                - [Example](#example-4)
-            - [send_command](#send_command)
+                - [Example](#example-3)
+            - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-5)
                 - [Returns](#returns-5)
-                - [Example](#example-5)
-            - [query](#query)
+                - [Example](#example-4)
+            - [send_command](#send_command)
                 - [Arguments](#arguments-6)
+                - [Returns](#returns-6)
+                - [Example](#example-5)
+            - [read_device](#read_device)
+            - [query](#query)
+                - [Arguments](#arguments-7)
                 - [Example](#example-6)
     - [References](#references)
 
@@ -323,6 +327,28 @@ B02797
 0
 ```
 
+#### _read_device ####
+
+Read the device's response to a command.
+
+##### Arguments #####
+
+1. Device index (0, 1, ..., connected ADU100s -1)
+2. Pointer to memory used for the returned string (handled by SWIG)
+3. Characters to read
+4. How long to tell libusb to wait for data (ms)
+
+##### Returns #####
+
+* On success, a list of
+1. 0 to indicate success
+2. The string read from the ADU100
+
+Note that the returned string is handled by SWIG.  The only explicit
+return is the integer returned by the C code.
+
+* On error, a negative error code to be interpreted by [read_device](#read_device).
+
 ### High level commands ###
 
 #### initialize_device ####
@@ -448,6 +474,8 @@ B02597 B02797
 The return is `0` (success), followed by `8` -- it took 8ms to get a
 response from the ADU100 (this is not how long it takes to close the
 relay).
+
+#### read_device ####
 
 #### query ####
 
