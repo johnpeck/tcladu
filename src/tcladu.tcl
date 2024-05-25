@@ -142,7 +142,7 @@ namespace eval tcladu {
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
 	set retval [tcladu::_initialize_device $index]
 	if { $retval < 0 } {
-	    error [tcladu::error_string $retval] 
+	    error [tcladu::error_decode $retval] 
 	}
 	# If we made it here, everything was fine
 	return 0
@@ -159,7 +159,7 @@ namespace eval tcladu {
 	if { $retval == -20 } {
 	    error "write_device: command $command is too large for transfer buffer"
 	} elseif { $retval < 0 } {
-	    error [tcladu::error_string $retval]
+	    error [tcladu::error_decode $retval]
 	}
 	# If we made it here, everything was fine
 	return 0
@@ -179,7 +179,7 @@ namespace eval tcladu {
 	if { $success_code == -21 } {
 	    error "read_device: $chars characters is less than the minimum 8"
 	} elseif { $success_code < 0 } {
-	    set error_dict [tcladu::error_string $success_code]
+	    set error_dict [tcladu::error_decode $success_code]
 	    set message [dict get $error_dict message]
 	    set code [dict get $error_dict code]
 	    throw $code $message
@@ -211,31 +211,35 @@ namespace eval tcladu {
 	#   index -- Which ADU100 to target.  0,1,...(connected ADU100s -1)
 	#   command -- The ASCII command to send
 	set timeout_ms 200
+	set retries 100
 	set t0 [clock clicks -millisec]
 	# Assume that send command will work perfectly
 	tcladu::send_command $index $command
-	foreach trial [tcladu::iterint 0 100] {
-	    set result [tcladu::read_device $index 8 $timeout_ms]
-	    set success_code [lindex $result 0]
-	    switch $success_code {
-		0 {
-		    # Query has succeeded, return the result
-		    set elapsed_ms [expr [clock clicks -millisec] - $t0]
-		    set success_code [lindex $result 0]
-		    set raw_response [lindex $result 1]
-		    # Strip leading zeros
-		    set clean_response [force_integer $raw_response]
-		    return [list $success_code $clean_response $elapsed_ms]
-		}
-		-7 {
-		    # Query has timed out, but it's because of a libusb
-		    # timeout -- not the device.  We likely just need to
-		    # wait longer for the device to respond.
-		    continue
-		}
+	foreach trial [tcladu::iterint 0 $retries] {
+	    try {
+		set result [tcladu::read_device 0 8 $timeout_ms]
+	    } trap {LIBUSB_ERROR_TIMEOUT} {message optdict} {
+		# We timed out, but it's a libusb timeout and not
+		# something from the ADU100.  We likely just need to
+		# wait longer for a response.
+		continue
+	    } trap {} {message optdict} {
+		# Some other error we can't handle.  This is fatal.
+		puts "Querying '$command' from device $index failed.  Message is: $message"
+		exit
 	    }
+	    # Query has succeeded, return the result
+	    set elapsed_ms [expr [clock clicks -millisec] - $t0]
+	    set success_code [lindex $result 0]
+	    set raw_response [lindex $result 1]
+	    # Strip leading zeros
+	    set clean_response [force_integer $raw_response]
+	    return [list $success_code $clean_response $elapsed_ms]
+
 	}
-	return -1
+	# If we get here, we've exceeded the maximum query attempts.  This is fatal.
+	puts "Querying device $index with $command failed after $retries attempts"
+	exit
     }
 
     proc clear_queue { index } {
