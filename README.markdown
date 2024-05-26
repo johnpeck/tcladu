@@ -34,7 +34,6 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [_initialize_device](#_initialize_device)
                 - [Arguments](#arguments-1)
                 - [Returns](#returns-1)
-                - [Example](#example-1)
             - [_read_device](#_read_device)
                 - [Arguments](#arguments-2)
                 - [Returns](#returns-2)
@@ -42,23 +41,23 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
             - [initialize_device](#initialize_device)
                 - [Arguments](#arguments-3)
                 - [Returns](#returns-3)
-                - [Example](#example-2)
+                - [Example](#example-1)
             - [serial_number_list](#serial_number_list)
                 - [Arguments](#arguments-4)
                 - [Returns](#returns-4)
-                - [Example](#example-3)
+                - [Example](#example-2)
             - [clear_queue](#clear_queue)
                 - [Arguments](#arguments-5)
                 - [Returns](#returns-5)
-                - [Example](#example-4)
+                - [Example](#example-3)
             - [send_command](#send_command)
                 - [Arguments](#arguments-6)
                 - [Returns](#returns-6)
-                - [Example](#example-5)
+                - [Example](#example-4)
             - [read_device](#read_device)
             - [query](#query)
                 - [Arguments](#arguments-7)
-                - [Example](#example-6)
+                - [Example](#example-5)
     - [References](#references)
 
 <!-- markdown-toc end -->
@@ -297,6 +296,8 @@ We can get the number of connected ADU100s and populate the internal database wi
 
 #### _initialize_device ####
 
+This command should not be called directly.  Use [initialize_device](#initialize_device) instead.
+
 This command is more about initializing the USB interface than it is
 about initializing the ADU100 hardware.  But it acts on one device
 instead of some broader initialization.  It does two things:
@@ -315,17 +316,6 @@ calling this function.
 
 * 0 on success
 * [libusb error code](https://libusb.sourceforge.io/api-1.0/group__libusb__misc.html#gab2323aa0f04bc22038e7e1740b2f29ef) on error
-
-##### Example #####
-
-```
-% package require tcladu
-1.1.3
-% tcladu::serial_number_list
-B02797
-% tcladu::_initialize_device 0
-0
-```
 
 #### _read_device ####
 

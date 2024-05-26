@@ -238,8 +238,8 @@ namespace eval tcladu {
 
 	}
 	# If we get here, we've exceeded the maximum query attempts.  This is fatal.
-	puts "Querying device $index with $command failed after $retries attempts"
-	exit
+	set message "Querying device $index with $command failed after $retries attempts"
+	throw {TCLADU QUERY RETRIES} $message
     }
 
     proc clear_queue { index } {
@@ -261,8 +261,8 @@ namespace eval tcladu {
 		return [list 0 $elapsed_ms]
 	    } trap {} {message optdict} {
 		# We can't clear the Tx queue
-		puts "Unable to clear the transmit buffer.  Message is: $message"
-		exit
+		set message "Unable to clear the transmit buffer.  Message is: $message"
+		throw {TCLADU CLEAR_QUEUE OTHER} $message
 	    }
 	}
     }
