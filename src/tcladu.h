@@ -27,7 +27,7 @@ typedef struct adu100 {
 //
 // This function may fail if there's a problem with libusb or
 // permissions.  It will indicate failure with a negative return.
-int discovered_devices (void);
+int _discovered_devices (void);
 
 
 // Return the serial number of the nth discovered device

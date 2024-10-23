@@ -80,7 +80,7 @@ tcladu/tcladu.so
 /usr/share/tcltk/tcl8.6 /usr/share/tcltk ... ~/Downloads
 <b>%</b> puts [package require tcladu]
 1.0.0
-<b>%</b> puts [tcladu::discovered_devices]
+<b>%</b> puts [tcladu::_discovered_devices]
 2
 <b>%</b> puts [tcladu::serial_number 0]
 B02597
@@ -258,7 +258,9 @@ more information about **package ifneeded**.
 These are commands implemented in `tcladu.c` and broken out via
 **SWIG**.
 
-#### discovered_devices ####
+#### _discovered_devices ####
+
+This command should not be called directly.  Use [serial_number_list](#serial_number_list) instead.
 
 This command returns the number of ADU100 devices discovered on USB.  The key line is
 
@@ -288,7 +290,7 @@ We can get the number of connected ADU100s and populate the internal database wi
 ```
 % package require tcladu
 1.1.1
-% tcladu::discovered_devices
+% tcladu::_discovered_devices
 1
 ```
 

@@ -129,7 +129,7 @@ namespace eval tcladu {
     proc serial_number_list {} {
 	# Return a list of connected serial numbers
 	set serial_number_list [list]
-	foreach index [tcladu::iterint 0 [tcladu::discovered_devices]] {
+	foreach index [tcladu::iterint 0 [tcladu::_discovered_devices]] {
 	    lappend serial_number_list [tcladu::serial_number $index]
 	}
 	return $serial_number_list

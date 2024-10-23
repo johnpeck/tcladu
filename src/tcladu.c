@@ -22,7 +22,7 @@ int initialize_package() {
   return libusb_init(NULL);
 }
 
-int discovered_devices() {
+int _discovered_devices() {
   int found_adu100s = 0;
   int result = 0;
 

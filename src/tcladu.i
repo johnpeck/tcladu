@@ -45,11 +45,9 @@
 // Initialize libusb
 int initialize_package();
 
-
-
 void serial_number( int index, char * _read_str );
 
-int discovered_devices();
+int _discovered_devices();
 
 libusb_device_handle *handle( int index );
 
