@@ -18,7 +18,7 @@ package_name = tcladu
 # https://www.tcl-lang.org/man/tcl/TclCmd/package.htm
 #
 # Use four digits: major.minor.patch.candidate
-version = 1.1.3.4
+version = 1.1.3.5
 
 # Archive name
 # {appname}-{version}-{OS}-{architecture}.{extension}

@@ -27,7 +27,7 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
         - [Requiring the package](#requiring-the-package)
     - [Command reference](#command-reference)
         - [Low level commands](#low-level-commands)
-            - [discovered_devices](#discovered_devices)
+            - [_discovered_devices](#_discovered_devices)
                 - [Arguments](#arguments)
                 - [Returns](#returns)
                 - [Example](#example)
@@ -79,23 +79,19 @@ tcladu/tcladu.so
 <b>%</b> lappend auto_path ~/Downloads
 /usr/share/tcltk/tcl8.6 /usr/share/tcltk ... ~/Downloads
 <b>%</b> puts [package require tcladu]
-1.0.0
-<b>%</b> puts [tcladu::_discovered_devices]
-2
-<b>%</b> puts [tcladu::serial_number 0]
+1.1.3
+<b>%</b> tcladu::serial_number_list
 B02597
-<b>%</b> puts [tcladu::write_device 0 "SK0" 200]
+<b>%</b> tcladu::initialize_device 0
 0
-<b>%</b> puts [tcladu::write_device 0 "RPK0" 200]
-0
-<b>%</b> puts [tcladu::read_device 0 8 200]
-0 1
-<b>%</b> puts [tcladu::write_device 0 "RK0" 200]
-0
-<b>%</b> puts [tcladu::write_device 0 "RPK0" 200]
-0
-<b>%</b> puts [tcladu::read_device 0 8 200]
-0 0
+<b>%</b> tcladu::send_command 0 "SK0"
+0 4
+<b>%</b> tcladu::query 0 "RPK0"
+0 1 12
+<b>%</b> tcladu::send_command 0 "RK0"
+0 6
+<b>%</b> tcladu::query 0 "RPK0"
+0 0 13
 </pre></code>
 
 ### What did we just do? ###
@@ -116,7 +112,7 @@ This both loads procedures into the `tcladu` namespace and initializes libusb.
 
 #### Populated the connected device database ####
 
-The `discovered_devices` command will populate a device database with
+The `_discovered_devices` command will populate a device database with
 things like device handles and serial numbers.  This must be called
 before writing to or reading from devices.
 
@@ -124,7 +120,7 @@ before writing to or reading from devices.
 
 The `serial_number` command doesn't do anything with connected
 hardware -- it just returns a serial number populated by
-`discovered_devices`.
+`_discovered_devices`.
 
 #### Sent the command to set/close the ADU100's relay ####
 
@@ -307,7 +303,7 @@ instead of some broader initialization.  It does two things:
 2. Claim interface number 0 for the chosen ADU100.  See the [libusb documentation](https://libusb.sourceforge.io/api-1.0/group__libusb__dev.html#gaee5076addf5de77c7962138397fd5b1a).
 
 The device database must be populated with
-`tcladu::serial_number_list` or `tcladu::discovered_devices` before
+`tcladu::serial_number_list` or `tcladu::_discovered_devices` before
 calling this function.
 
 ##### Arguments #####
@@ -373,7 +369,7 @@ B02797
 #### serial_number_list ####
 
 Returns a list of connected ADU100 devices.  This calls
-`tcladu::discovered_devices` internally to populate the connected
+`tcladu::_discovered_devices` internally to populate the connected
 device database.
 
 ##### Arguments #####
