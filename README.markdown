@@ -70,10 +70,11 @@ ADU100s connected.  You also need permissions to access the device,
 but let's say you have those.
 
 <pre><code>
-<b>johnpeck@darkstar:~/Downloads $</b> tar xzvf tcladu-1.0.0-linux-x64.tar.gz
+<b>johnpeck@darkstar:~/Downloads $</b> tar xzvf tcladu-1.1.3-linux-x64.tar.gz
 tcladu/
 tcladu/pkgIndex.tcl
 tcladu/tcladu.so
+tcladu/tcladu.tcl
 <b>johnpeck@darkstar:~/Downloads $</b> cd ~
 <b>johnpeck@darkstar:~ $</b> tclsh
 <b>%</b> lappend auto_path ~/Downloads
@@ -98,9 +99,11 @@ B02597
 
 #### Unpacked the TGZ ####
 
-The package is just two files: `pkgIndex.tcl`, used by Tcl's
-[package](https://wiki.tcl-lang.org/page/package) procedure, and
-`tcladu.so`, a binary produced from some `c` code.
+The package consists of three files:
+
+1. `pkgIndex.tcl` — used by Tcl's [package](https://wiki.tcl-lang.org/page/package) procedure
+2. `tcladu.tcl` — a Tcl source file containing procedures that call c-functions in a binary file
+3. `tcladu.so` — a platform-specific binary produced from some `c` code.
 
 #### Appended the package to Tcl's `auto_path` ####
 
@@ -110,65 +113,50 @@ The [auto_path](https://wiki.tcl-lang.org/page/auto_path) list tells Tcl where t
 
 This both loads procedures into the `tcladu` namespace and initializes libusb.
 
-#### Populated the connected device database ####
+#### Populated the connected device database and queried the connected devices ####
 
-The `_discovered_devices` command will populate a device database with
-things like device handles and serial numbers.  This must be called
-before writing to or reading from devices.
+The [serial_number_list](#serial_number_list) command will populate a
+device database with things like device handles and serial numbers.
+This must be called before writing to or reading from devices.  It
+returns a list of connected-device serial numbers whose indexes are
+used to identify devices in commands like [send_command](#send_command).
 
-#### Queried the device database for device 0 ####
+#### Initialized device 0 ####
 
-The `serial_number` command doesn't do anything with connected
-hardware -- it just returns a serial number populated by
-`_discovered_devices`.
+This configures the USB endpoint on device 0.
 
 #### Sent the command to set/close the ADU100's relay ####
 
-The `write_device` command takes a device index instead of some kind
+The [send_command](#send_command) command takes a device index instead of some kind
 of handle to identify the targeted device. It then takes an ASCII
 command that you can find in the [ADU100
 manual](https://www.ontrak.net/PDFs/adu100a.pdf) to manipulate the
-hardware relay.  The last argument is a timeout for libusb (in
-milliseconds), which will become more interesting when we get into
-reading from the hardware.
+hardware relay. The return value list tells us that
 
-#### Sent the command to read the relay status ####
+1. The command succeeded
+2. It took 4ms to execute the commmand (this doesn't include the time
+   it takes to close the relay).
 
-Reading the relay status starts with telling the ADU100 to read the
-status.  It will prepare the result to be read by the next libusb
-read.  The return value for the `RPK0` command is just a success code
--- not the relay status.
+#### Queried the relay status ####
 
-#### Read from the ADU100 ####
+The [query](#query) command
 
-The `read_device` command takes a device index, followed by the number
-of bytes we want to read.  This payload size is a placeholder for now,
-although it has to be 8 bytes or larger.  I want to keep it to handle
-larger payloads on other Ontrak devices this might support in the
-future.
+1. Sends a command telling the ADU100 to read its relay state
+2. Sends a command telling the ADU100 to report its relay state
 
-The final argument is the familiar ms timeout.  Libusb will throw a
-timeout error if the read takes longer than this value.  But this
-error isn't fatal, and your code can catch this and simply try again.
-This gives your application a chance to stay active while you wait for
-a long hardware read.
-
-The result is a Tcl [list](https://wiki.tcl-lang.org/page/list)
-containing the success code and return value.  In this case, a `1`
-shows us that the relay is set/closed.
+...and then returns a list of values:
+1. 0 for success
+2. 1 for a closed relay
+3. 12 for 12ms of execution time
 
 #### Sent the command to reset/open the ADU100's relay ####
 
 This is the opposite of the set command.
 
-#### Sent the command to check the relay status again ####
+#### Queried the relay status again ####
 
 We'll now expect the hardware to report 0 for the relay status.
 
-#### Read from the ADU100 ####
-
-The returned list is now `0 0`, telling us that the command succeeded
-and that the relay is reset/open.
 
 ## Getting started ##
 
