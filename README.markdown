@@ -218,16 +218,16 @@ example,
 
 ```
 % package require tcladu
-1.1.1
+1.1.3
 ```
 
 ...where the command returns the loaded version.  I can then make sure
 the package got loaded from the right place with
 
 ```
-% package ifneeded tcladu 1.1.1
-load /usr/share/tcltk/tcladu1.1.1/tcladu.so
-source /usr/share/tcltk/tcladu1.1.1/tcladu.tcl
+% package ifneeded tcladu 1.1.3
+load /usr/share/tcltk/tcladu1.1.3/tcladu.so
+source /usr/share/tcltk/tcladu1.1.3/tcladu.tcl
 ```
 
 ...showing the path I expected.  This step is more important if you
@@ -273,7 +273,7 @@ We can get the number of connected ADU100s and populate the internal database wi
 
 ```
 % package require tcladu
-1.1.1
+1.1.3
 % tcladu::_discovered_devices
 1
 ```
@@ -373,7 +373,7 @@ devices are discovered.
 
 ```
 % package require tcladu
-1.1.0
+1.1.3
 % tcladu::serial_number_list
 B02597 B02797
 ```
@@ -402,7 +402,7 @@ Clear the queue (of the ADU100 at index 0) with
 
 ```
 % package require tcladu
-1.1.1
+1.1.3
 % tcladu::serial_number_list
 B02597
 % tcladu::initialize_device 0
@@ -438,7 +438,7 @@ This sequence shows populating the device database, then setting (closing) the A
 
 ```
 % package require tcladu
-1.1.0
+1.1.3
 % tcladu::serial_number_list
 B02597 B02797
 % tcladu::initialize_device 0
@@ -471,7 +471,7 @@ the relay, then querying again.
 
 ```
 % package require tcladu
-1.1.1
+1.1.3
 % tcladu::serial_number_list
 B02597
 % tcladu::clear_queue 0
