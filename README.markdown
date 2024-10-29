@@ -64,10 +64,9 @@ Tcl package supporting multiple [ADU100s](https://www.ontrak.net/ADU100.htm) fro
 
 ## Demonstration ##
 
-Let's say you've downloaded a release binary from
-[Sourceforge](https://tcladu.sourceforge.io), and you have a few (two)
-ADU100s connected.  You also need permissions to access the device,
-but let's say you have those.
+Let's say you've downloaded a release binary, and you have an
+ADU100 connected.  You also need permissions to access the device,
+but let's say you have that.
 
 <pre><code>
 <b>johnpeck@darkstar:~/Downloads $</b> tar xzvf tcladu-1.1.3-linux-x64.tar.gz
